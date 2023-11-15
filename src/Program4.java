@@ -4,7 +4,6 @@
  * @author Francisco Gonzalez
  * @author Jake Bode
  */
-import utils.CommandLineArgumentsUtils;
 
 public class Program4 {
 
