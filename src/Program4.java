@@ -17,6 +17,7 @@ public class Program4 {
             System.out.println( "Options:\n\n" );
             System.out.println( "-u Username to login with to oracle database" );
             System.out.println( "-p Password to login with to oracle database" );
+            System.exit( 1 );
         }
 
         // Load the Oracle JDBC Driver
