@@ -13,10 +13,11 @@ public class Program4 {
         String password = CommandLineArgumentsUtils.getPassword( args );
 
         if ( username == null || password == null ) {
-            System.out.println( "Usage: Program4 <-u username> <-p password>\n" );
-            System.out.println( "Options:\n\n" );
-            System.out.println( "-u Username to login with to oracle database" );
-            System.out.println( "-p Password to login with to oracle database" );
+            System.out.println( "\nUsage: Program4 <-u username> <-p password>\n" );
+            System.out.println( "Options:" );
+            System.out.println( "\t-u Username to login with to oracle database" );
+            System.out.println( "\t-p Password to login with to oracle database" );
+            System.out.println();
             System.exit( 1 );
         }
 
