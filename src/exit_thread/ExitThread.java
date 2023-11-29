@@ -10,7 +10,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Scanner;
 
-import utils.PrintUtils;
+import utils.CommonPrints;
 
 public class ExitThread extends Thread {
 
@@ -25,7 +25,7 @@ public class ExitThread extends Thread {
 
     @Override
     public void run() {
-        PrintUtils.printExitMessage(); // Print exit message
+        CommonPrints.printExitMessage(); // Print exit message
         scanner.close(); // Close the scanner used for the program
         try {
             dbConnection.close(); // Close DB Connection

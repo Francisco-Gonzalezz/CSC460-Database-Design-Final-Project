@@ -5,7 +5,7 @@ import java.util.Scanner;
 
 import exit_thread.ExitThread;
 import operations.MemberOperations;
-import utils.PrintUtils;
+import utils.CommonPrints;
 
 public class CommandLineGui {
 
@@ -40,12 +40,12 @@ public class CommandLineGui {
      * Starts the command line interface to interact with the gym database
      */
     public void startGui() {
-        PrintUtils.printWelcomeMessage();
+        CommonPrints.printWelcomeMessage();
         System.out.println( "\n" );
 
         while ( true ) {
-            PrintUtils.promptUserToSelectTypeOfOperation();
-            PrintUtils.printStandardOptions();
+            CommonPrints.promptUserToSelectTypeOfOperation();
+            CommonPrints.printStandardOptions();
             getOperationSelection();
         }
     }
@@ -62,11 +62,11 @@ public class CommandLineGui {
             try {
                 option = Integer.valueOf( userInput );
             } catch ( NumberFormatException e ) {
-                PrintUtils.printInvalidOptionMessage();
+                CommonPrints.printInvalidOptionMessage();
             }
 
             if ( option < MIN_OPTIONS || option > MAX_MAIN_MENU_OPTIONS ) {
-                PrintUtils.printInvalidOptionMessage();
+                CommonPrints.printInvalidOptionMessage();
                 continue;
             }
             openOperationsMenu( option );

@@ -1,9 +1,9 @@
 package utils;
 
-public class PrintUtils {
+public class CommonPrints {
 
     // Keeps from making a new instance of the class
-    private PrintUtils() {
+    private CommonPrints() {
     }
 
     /**
