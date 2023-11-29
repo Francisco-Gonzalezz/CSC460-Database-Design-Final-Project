@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.util.Scanner;
 
 import utils.CommonPrints;
+import utils.ValidationUtils;
 
 public class MemberOperations implements OperationsInterface {
 
@@ -15,10 +16,13 @@ public class MemberOperations implements OperationsInterface {
     private static final int ADD_MEMBER_OPTION = 1;
     private static final int REMOVE_MEMBER_OPTION = 2;
     private static final int RETURN_TO_MAIN_MENU_OPTION = 3;
+    private static final String EXIT = "CANCEL";
 
     private Scanner scanner;
 
     private Connection dbConnection;
+
+    private boolean exitSignal;
 
     public MemberOperations( Connection dbConnection, Scanner scanner ) {
         this.dbConnection = dbConnection;
@@ -29,6 +33,7 @@ public class MemberOperations implements OperationsInterface {
      * Open menu for member operations and sends program control to given operation
      */
     public void openMenu() {
+        exitSignal = false;
         System.out.println();
         CommonPrints.printGymMemberOperations();
         String userInput = null;
@@ -69,11 +74,28 @@ public class MemberOperations implements OperationsInterface {
      * Goes through the process of adding a new member to DB
      */
     private void openAddMemberWizard() {
-        // TODO: Need to add way to exit from the wizard without finishing registartion
-        System.out.println( "New Member Wizard" );
-        System.out.println( "-----------------" );
+        System.out.println( "New Member Wizard ( Type 'Cancel' at anytime to cancel member creation )" );
+        System.out.println( "----------------------------------------------------------------------" );
         String firstName = getNameFromUser( true );
+        if ( exitSignal ) {
+            CommonPrints.printMemberCreationCancelled();
+            return;
+        }
         String lastName = getNameFromUser( false );
+        if ( exitSignal ) {
+            CommonPrints.printMemberCreationCancelled();
+            return;
+        }
+        String phoneNumber = getPhoneNumberFromUser();
+        if ( exitSignal ) {
+            CommonPrints.printMemberCreationCancelled();
+            return;
+        }
+        String email = getEmailFromUser();
+        if ( exitSignal ) {
+            CommonPrints.printMemberCreationCancelled();
+            return;
+        }
     }
 
     private void openRemoveMemberWizard() {
@@ -81,6 +103,43 @@ public class MemberOperations implements OperationsInterface {
     }
 
     // Functions to grab input from user
+
+    private String readInputFromUser() {
+        String userInput = scanner.nextLine();
+        if ( userInput.equalsIgnoreCase( EXIT ) ) {
+            exitSignal = true;
+        }
+        return userInput;
+    }
+
+    private String getEmailFromUser() {
+        System.out.println( "Enter new member's email address" );
+        String email = "";
+        email = readInputFromUser();
+        while ( !ValidationUtils.validateEmail( email ) ) {
+            System.out.println( "Please enter a valid email" );
+            email = readInputFromUser();
+            if ( exitSignal ) {
+                return null;
+            }
+        }
+
+        return email;
+    }
+
+    private String getPhoneNumberFromUser() {
+        System.out.println( "Enter new member's phone number" );
+        String phoneNumber = "";
+        phoneNumber = readInputFromUser();
+        while ( !ValidationUtils.validatePhoneNumber( phoneNumber ) ) {
+            System.out.println( "Please enter a valid phone nubmer" );
+            phoneNumber = readInputFromUser();
+            if ( exitSignal ) {
+                return null;
+            }
+        }
+        return phoneNumber;
+    }
 
     /**
      * Prompts the user to get the member's first or last name
@@ -94,7 +153,7 @@ public class MemberOperations implements OperationsInterface {
         } else {
             System.out.println( "Enter the new member's last name" );
         }
-        name = scanner.nextLine();
+        name = readInputFromUser();
         return name;
     }
 

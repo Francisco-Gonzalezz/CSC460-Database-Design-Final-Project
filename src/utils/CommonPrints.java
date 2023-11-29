@@ -40,6 +40,10 @@ public class CommonPrints {
         System.out.println( "Please enter a valid option from above" );
     }
 
+    public static void printMemberCreationCancelled() {
+        System.out.println( "\nCancelling member creation" );
+    }
+
     /**
      * Message to print on exit
      */
