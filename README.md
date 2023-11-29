@@ -9,8 +9,11 @@ To be completed
 * Have access to the Lectura server hosted at the University of Arizona
 * Account created for the Oracle Database on Lectura  
 * Add Oracle JDBC to classpath
-* Java 16 installed
-**_If you encounter any issues contact the helpdesk through their website or email lab@cs.arizona.edu_**
+* Java 16 installed  
+
+<!-- end of list -->
+
+**_If you encounter any issues contact the helpdesk through their website or email lab@cs.arizona.edu_**  
 
 ## Setup
 
@@ -24,3 +27,8 @@ To be completed
 2) Start the java program by running  
 `java Program4 -u <oracle username> -p <oracle password>`
 3) Text-based application will start allowing for interactions with the Fitness Database
+
+## Development Notes
+
+* If you want to cleanup the .class files that are generated run the following command from the <i>src</i> directory  
+`make clean`
