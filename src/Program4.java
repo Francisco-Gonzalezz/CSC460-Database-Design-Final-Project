@@ -9,6 +9,10 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
+import gui.CommandLineGui;
+import utils.CommandLineArgumentsUtils;
+import utils.ExitThread;
+
 public class Program4 {
 
     private static final String jdbcURL = "jdbc:oracle:thin:@aloe.cs.arizona.edu:1521:oracle";

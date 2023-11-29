@@ -1,3 +1,5 @@
+package utils;
+
 public class PrintUtils {
 
     // Keeps from making a new instance of the class

@@ -1,5 +1,10 @@
+package gui;
+
 import java.sql.Connection;
 import java.util.Scanner;
+
+import operations.Operations;
+import utils.PrintUtils;
 
 public class CommandLineGui {
 

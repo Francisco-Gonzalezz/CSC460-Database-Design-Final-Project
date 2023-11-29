@@ -1,3 +1,4 @@
+package utils;
 
 /**
  * The purpose of this class is to encapsulate all the "cleanup code" for when the program exits
