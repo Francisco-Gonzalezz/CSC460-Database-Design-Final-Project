@@ -3,6 +3,7 @@ package operations;
 import java.sql.Connection;
 import java.util.Scanner;
 
+import entities.GymMember;
 import utils.CommonPrints;
 import utils.ValidationUtils;
 
@@ -96,6 +97,7 @@ public class MemberOperations implements OperationsInterface {
             CommonPrints.printMemberCreationCancelled();
             return;
         }
+        GymMember newMember = new GymMember( firstName, lastName, phoneNumber, email );
     }
 
     private void openRemoveMemberWizard() {
