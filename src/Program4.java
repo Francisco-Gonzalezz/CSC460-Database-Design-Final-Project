@@ -5,7 +5,11 @@
  * @author Jake Bode
  */
 
+import java.sql.*;
+
 public class Program4 {
+
+    private static final String jdbcURL = "jdbc:oracle:thin:@aloe.cs.arizona.edu:1521:oracle";
 
     public static void main( String[] args ) {
         // Get the username and password and verify that were set with a command line argument
@@ -28,6 +32,21 @@ public class Program4 {
             System.err.println( "Unable to load the JDBC Driver. Ensure that the JDBC driver is on the classpath" );
             System.exit( 1 );
         }
+
+        Connection dbConnection = null;
+        try {
+            dbConnection = DriverManager.getConnection(jdbcURL, username, password );
+        } catch ( SQLException e ) {
+            System.out.println("Unable to connect to DB.");
+            System.out.println("Check username/password");
+            System.exit(1);
+        }
+
+    	try {	
+	dbConnection.close();
+	} catch ( SQLException e ) {
+		System.out.println("Unable to close connection");
+	}
     }
 
 }
