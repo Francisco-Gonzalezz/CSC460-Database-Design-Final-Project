@@ -11,6 +11,12 @@ public class CommandLineArgumentsUtils {
     private static final String PASSWORD_FLAG = "-p";
 
     /**
+     * Keeps from creating a new instance of this class
+     */
+    private CommandLineArgumentsUtils() {
+    }
+
+    /**
      * Searches for the username flag and returns the argument directly after that for the username
      * @param commandLineArguments String array of cli arguments
      * @return username that was given as a commandline argument null if unable to be found

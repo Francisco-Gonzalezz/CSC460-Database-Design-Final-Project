@@ -5,7 +5,9 @@
  * @author Jake Bode
  */
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 
 public class Program4 {
 
@@ -33,20 +35,22 @@ public class Program4 {
             System.exit( 1 );
         }
 
+        // Grab connection to the DB
         Connection dbConnection = null;
         try {
-            dbConnection = DriverManager.getConnection(jdbcURL, username, password );
+            dbConnection = DriverManager.getConnection( jdbcURL, username, password );
         } catch ( SQLException e ) {
-            System.out.println("Unable to connect to DB.");
-            System.out.println("Check username/password");
-            System.exit(1);
+            System.out.println( "Unable to connect to DB." );
+            System.out.println( "Check username/password" );
+            System.exit( 1 );
         }
 
-    	try {	
-	dbConnection.close();
-	} catch ( SQLException e ) {
-		System.out.println("Unable to close connection");
-	}
+        // Set cleanup code to run when program exits
+        Runtime.getRuntime().addShutdownHook( new ExitThread( dbConnection ) );
+
+        // Start the cli
+        CommandLineGui gui = new CommandLineGui( dbConnection );
+        gui.startGui();
     }
 
 }
