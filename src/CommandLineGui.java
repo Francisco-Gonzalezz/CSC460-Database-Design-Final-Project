@@ -7,6 +7,8 @@ public class CommandLineGui {
 
     private Scanner scanner; // Scanner to read from stdin
 
+    private Operations operations;
+
     /**
      * Creates a new instance of a CommandLineGui and access to a SQL DB Connection
      * @param dbConnection
@@ -15,6 +17,7 @@ public class CommandLineGui {
     public CommandLineGui( Connection dbConnection ) {
         this.dbConnection = dbConnection;
         scanner = new Scanner( System.in );
+        operations = new Operations( this.dbConnection, this.scanner );
     }
 
     /**
@@ -22,7 +25,10 @@ public class CommandLineGui {
      */
     public void startGui() {
         PrintUtils.printWelcomeMessage();
+        System.out.println( "\n" );
+
         while ( true ) {
+            PrintUtils.promptUserToSelectTypeOfOperation();
             PrintUtils.printStandardOptions();
             getOperationSelection();
         }
@@ -42,7 +48,6 @@ public class CommandLineGui {
                 break;
             } catch ( NumberFormatException e ) {
                 System.out.println( "\nPlease select one of the available options from above.\n" );
-                continue;
             }
         }
         openOperationsMenu( option );
@@ -55,12 +60,14 @@ public class CommandLineGui {
     private void openOperationsMenu( int option ) {
         switch ( option ) {
             case 1:
+                operations.openMemberOperations();
                 break;
             case 2:
                 break;
             case 3:
                 break;
             case 4:
+                scanner.close();
                 System.exit( 0 );
         }
     }

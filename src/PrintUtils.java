@@ -9,7 +9,11 @@ public class PrintUtils {
      */
     public static void printWelcomeMessage() {
         System.out.println( "\nWelcome to the 460 Gym Interface" );
-        System.out.println( "--------------------------------" );
+    }
+
+    public static void promptUserToSelectTypeOfOperation() {
+        System.out.println( "Select what type of operation you would like to perform." );
+        System.out.println( "--------------------------------------------------------" );
     }
 
     /**
@@ -20,6 +24,14 @@ public class PrintUtils {
         System.out.println( "2) Course operations" );
         System.out.println( "3) Admin Operations" );
         System.out.println( "4) Exit" );
+    }
+
+    public static void printGymMemberOperations() {
+        System.out.println( "Gym Member Operations" );
+        System.out.println( "---------------------" );
+        System.out.println( "1) Add a new member" );
+        System.out.println( "2) Delete a member" );
+        System.out.println( "3) Return to previous menu" );
     }
 
     /**
