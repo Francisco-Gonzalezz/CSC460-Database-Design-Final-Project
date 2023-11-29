@@ -2,7 +2,7 @@ package entities;
 
 public class GymMember {
 
-    private int memberID;
+    private long memberID;
 
     private String firstName;
 
@@ -19,13 +19,22 @@ public class GymMember {
         this.email = email;
     }
 
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append( "Member Name: " + firstName + " " + lastName + "\n" );
+        sb.append( "Member Phone#: " + phoneNumber + "\n" );
+        sb.append( "Member Email: " + email );
+        return sb.toString();
+    }
+
     // Getters and Setters
 
-    public int getMemberID() {
+    public long getMemberID() {
         return memberID;
     }
 
-    public void setMemberID( int memberID ) {
+    public void setMemberID( long memberID ) {
         this.memberID = memberID;
     }
 

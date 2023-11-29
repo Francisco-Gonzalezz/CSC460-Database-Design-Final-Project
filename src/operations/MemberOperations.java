@@ -97,11 +97,16 @@ public class MemberOperations implements OperationsInterface {
             CommonPrints.printMemberCreationCancelled();
             return;
         }
+        // Store as object to keep all info in one place for DB insertion
         GymMember newMember = new GymMember( firstName, lastName, phoneNumber, email );
+
+        //TODO: Insert into DB
     }
 
     private void openRemoveMemberWizard() {
         long memberID = getMemberIDFromUser();
+
+        // TODO: Build GymMember object from querying DB for the member
     }
 
     // Functions to grab input from user
@@ -144,7 +149,8 @@ public class MemberOperations implements OperationsInterface {
     }
 
     /**
-     * Prompts the user to get the member's first or last name
+     * Prompts the user to get the member's first or last name.
+     * Will allow for any name except an empty one
      * @param firstName true to prompt for first name false for last name
      * @return First or Last name as a String
      */
@@ -155,7 +161,17 @@ public class MemberOperations implements OperationsInterface {
         } else {
             System.out.println( "Enter the new member's last name" );
         }
-        name = readInputFromUser();
+
+        // Loop until name is valid
+        while ( name.isEmpty() ) {
+            String userInput = readInputFromUser();
+            if ( !userInput.isEmpty() ) {
+                name = userInput;
+            } else {
+                System.out.println( "Please enter a non-empty name" );
+            }
+        }
+
         return name;
     }
 
