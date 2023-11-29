@@ -3,16 +3,25 @@ package gui;
 import java.sql.Connection;
 import java.util.Scanner;
 
-import operations.Operations;
+import exit_thread.ExitThread;
+import operations.MemberOperations;
 import utils.PrintUtils;
 
 public class CommandLineGui {
+
+    // Static integers for main menu options
+    private static final int MIN_OPTIONS = 1; // Miniumn integer option for every menu
+    private static final int MAX_MAIN_MENU_OPTIONS = 4; // Maximum integer option for the main menu
+    private static final int MEMBER_MENU_OPTION = 1;
+    private static final int COURSE_MENU_OPTION = 2;
+    private static final int ADMIN_MENU_OPTION = 3;
+    private static final int EXIT_MENU_OPTION = 4;
 
     private Connection dbConnection; // Connection to the oracle db
 
     private Scanner scanner; // Scanner to read from stdin
 
-    private Operations operations;
+    private MemberOperations memberOperations;
 
     /**
      * Creates a new instance of a CommandLineGui and access to a SQL DB Connection
@@ -22,7 +31,9 @@ public class CommandLineGui {
     public CommandLineGui( Connection dbConnection ) {
         this.dbConnection = dbConnection;
         scanner = new Scanner( System.in );
-        operations = new Operations( this.dbConnection, this.scanner );
+        memberOperations = new MemberOperations( dbConnection, scanner );
+        // Give objects that need to be closed to the ExitThread to free resources at the end
+        Runtime.getRuntime().addShutdownHook( new ExitThread( dbConnection, scanner ) );
     }
 
     /**
@@ -44,18 +55,23 @@ public class CommandLineGui {
      */
     private void getOperationSelection() {
         String userInput = null; // String form of the userinput
-        int option; // Will convert the string input to be an int
+        int option = 0; // Will convert the string input to be an int
         while ( true ) {
             System.out.println();
             userInput = scanner.nextLine();
             try {
                 option = Integer.valueOf( userInput );
-                break;
             } catch ( NumberFormatException e ) {
-                System.out.println( "\nPlease select one of the available options from above.\n" );
+                PrintUtils.printInvalidOptionMessage();
             }
+
+            if ( option < MIN_OPTIONS || option > MAX_MAIN_MENU_OPTIONS ) {
+                PrintUtils.printInvalidOptionMessage();
+                continue;
+            }
+            openOperationsMenu( option );
+            break;
         }
-        openOperationsMenu( option );
     }
 
     /**
@@ -64,15 +80,14 @@ public class CommandLineGui {
      */
     private void openOperationsMenu( int option ) {
         switch ( option ) {
-            case 1:
-                operations.openMemberOperations();
+            case MEMBER_MENU_OPTION:
+                memberOperations.openMenu();
                 break;
-            case 2:
+            case COURSE_MENU_OPTION:
                 break;
-            case 3:
+            case ADMIN_MENU_OPTION:
                 break;
-            case 4:
-                scanner.close();
+            case EXIT_MENU_OPTION:
                 System.exit( 0 );
         }
     }

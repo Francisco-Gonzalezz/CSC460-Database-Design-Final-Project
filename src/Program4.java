@@ -11,7 +11,6 @@ import java.sql.SQLException;
 
 import gui.CommandLineGui;
 import utils.CommandLineArgumentsUtils;
-import utils.ExitThread;
 
 public class Program4 {
 
@@ -48,9 +47,6 @@ public class Program4 {
             System.out.println( "Check username/password" );
             System.exit( 1 );
         }
-
-        // Set cleanup code to run when program exits
-        Runtime.getRuntime().addShutdownHook( new ExitThread( dbConnection ) );
 
         // Start the cli
         CommandLineGui gui = new CommandLineGui( dbConnection );

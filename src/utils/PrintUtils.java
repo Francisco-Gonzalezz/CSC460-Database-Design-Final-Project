@@ -36,6 +36,10 @@ public class PrintUtils {
         System.out.println( "3) Return to previous menu" );
     }
 
+    public static void printInvalidOptionMessage() {
+        System.out.println( "Please enter a valid option from above" );
+    }
+
     /**
      * Message to print on exit
      */
