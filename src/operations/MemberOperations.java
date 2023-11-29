@@ -9,10 +9,12 @@ public class MemberOperations implements OperationsInterface {
 
     private static final int MAX_MEMBER_OPERATIONS = 3; // Max valid integer option for member menu
     private static final int MIN_OPERATIONS = 1; // Min valid integer option for member menu
+    private static final int SMALLEST_MEMBER_ID = 1; // Smallest member id should be 1
+
+    // Values of each of the member operations
     private static final int ADD_MEMBER_OPTION = 1;
     private static final int REMOVE_MEMBER_OPTION = 2;
     private static final int RETURN_TO_MAIN_MENU_OPTION = 3;
-    private static final int SMALLEST_MEMBER_ID = 1;
 
     private Scanner scanner;
 
