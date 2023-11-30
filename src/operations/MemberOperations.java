@@ -3,6 +3,7 @@ package operations;
 import java.sql.Connection;
 import java.util.Scanner;
 
+import entities.GymMember;
 import utils.CommonPrints;
 import utils.ValidationUtils;
 
@@ -10,10 +11,12 @@ public class MemberOperations implements OperationsInterface {
 
     private static final int MAX_MEMBER_OPERATIONS = 3; // Max valid integer option for member menu
     private static final int MIN_OPERATIONS = 1; // Min valid integer option for member menu
+    private static final int SMALLEST_MEMBER_ID = 1; // Smallest member id should be 1
+
+    // Values of each of the member operations
     private static final int ADD_MEMBER_OPTION = 1;
     private static final int REMOVE_MEMBER_OPTION = 2;
     private static final int RETURN_TO_MAIN_MENU_OPTION = 3;
-    private static final int SMALLEST_MEMBER_ID = 1;
     private static final String EXIT = "CANCEL";
 
     private Scanner scanner;
@@ -94,6 +97,8 @@ public class MemberOperations implements OperationsInterface {
             CommonPrints.printMemberCreationCancelled();
             return;
         }
+        // Store as object to keep all info in one place for DB insertion
+        GymMember newMember = new GymMember( firstName, lastName, phoneNumber, email );
     }
 
     private void openRemoveMemberWizard() {
@@ -142,7 +147,8 @@ public class MemberOperations implements OperationsInterface {
     }
 
     /**
-     * Prompts the user to get the member's first or last name
+     * Prompts the user to get the member's first or last name.
+     * Will allow for any name except an empty one
      * @param firstName true to prompt for first name false for last name
      * @return First or Last name as a String
      */
@@ -153,7 +159,17 @@ public class MemberOperations implements OperationsInterface {
         } else {
             System.out.println( "Enter the new member's last name" );
         }
-        name = readInputFromUser();
+
+        // Loop until name is valid
+        while ( name.isEmpty() ) {
+            String userInput = readInputFromUser();
+            if ( !userInput.isEmpty() ) {
+                name = userInput;
+            } else {
+                System.out.println( "Please enter a non-empty name" );
+            }
+        }
+
         return name;
     }
 
