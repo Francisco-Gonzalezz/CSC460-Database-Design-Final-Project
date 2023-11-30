@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.util.Scanner;
 
 import exit_thread.ExitThread;
+import operations.CourseOperations;
 import operations.MemberOperations;
 import utils.CommonPrints;
 
@@ -23,6 +24,8 @@ public class CommandLineGui {
 
     private MemberOperations memberOperations;
 
+    private CourseOperations courseOperations;
+
     /**
      * Creates a new instance of a CommandLineGui and access to a SQL DB Connection
      * @param dbConnection
@@ -32,6 +35,7 @@ public class CommandLineGui {
         this.dbConnection = dbConnection;
         scanner = new Scanner( System.in );
         memberOperations = new MemberOperations( dbConnection, scanner );
+        courseOperations = new CourseOperations( dbConnection, scanner );
         // Give objects that need to be closed to the ExitThread to free resources at the end
         Runtime.getRuntime().addShutdownHook( new ExitThread( dbConnection, scanner ) );
     }
@@ -84,6 +88,7 @@ public class CommandLineGui {
                 memberOperations.openMenu();
                 break;
             case COURSE_MENU_OPTION:
+                courseOperations.openMenu();
                 break;
             case ADMIN_MENU_OPTION:
                 break;

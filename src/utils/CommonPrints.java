@@ -36,6 +36,14 @@ public class CommonPrints {
         System.out.println( "3) Return to previous menu" );
     }
 
+    public static void printCourseOperations() {
+        System.out.println( "Course Operations" );
+        System.out.println( "-----------------" );
+        System.out.println( "1) Add a course" );
+        System.out.println( "2) Delete a course" );
+        System.out.println( "3) Return to previous menu" );
+    }
+
     public static void printInvalidOptionMessage() {
         System.out.println( "Please enter a valid option from above" );
     }

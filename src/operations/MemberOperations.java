@@ -98,6 +98,8 @@ public class MemberOperations implements OperationsInterface {
 
     private void openRemoveMemberWizard() {
         long memberID = getMemberIDFromUser();
+
+        // TODO: Build GymMember object from querying DB for the member and start deletion process
     }
 
     // Functions to grab input from user
