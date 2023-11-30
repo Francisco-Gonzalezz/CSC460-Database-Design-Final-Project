@@ -9,14 +9,15 @@ import utils.ValidationUtils;
 
 public class MemberOperations implements OperationsInterface {
 
-    private static final int MAX_MEMBER_OPERATIONS = 3; // Max valid integer option for member menu
+    private static final int MAX_MEMBER_OPERATIONS = 4; // Max valid integer option for member menu
     private static final int MIN_OPERATIONS = 1; // Min valid integer option for member menu
     private static final int SMALLEST_MEMBER_ID = 1; // Smallest member id should be 1
 
     // Values of each of the member operations
     private static final int ADD_MEMBER_OPTION = 1;
     private static final int REMOVE_MEMBER_OPTION = 2;
-    private static final int RETURN_TO_MAIN_MENU_OPTION = 3;
+    private static final int CHECK_MEMBER_SCHEDULE_OPTION = 3;
+    private static final int RETURN_TO_MAIN_MENU_OPTION = 4;
     private static final String EXIT = "CANCEL";
 
     private Scanner scanner;
@@ -34,8 +35,8 @@ public class MemberOperations implements OperationsInterface {
      * Open menu for member operations and sends program control to given operation
      */
     public void openMenu() {
-        exitSignal = false;
         System.out.println();
+        exitSignal = false;
         CommonPrints.printGymMemberOperations();
         String userInput = null;
         int option;
@@ -56,6 +57,7 @@ public class MemberOperations implements OperationsInterface {
             break;
         }
 
+        System.out.println();
         // Select which operation to do
         switch ( option ) {
             case ADD_MEMBER_OPTION:
@@ -63,6 +65,9 @@ public class MemberOperations implements OperationsInterface {
                 break;
             case REMOVE_MEMBER_OPTION:
                 openRemoveMemberWizard();
+                break;
+            case CHECK_MEMBER_SCHEDULE_OPTION:
+                openMemberClassScheduleSearch();
                 break;
             case RETURN_TO_MAIN_MENU_OPTION:
                 break;
@@ -105,6 +110,12 @@ public class MemberOperations implements OperationsInterface {
         long memberID = getMemberIDFromUser();
 
         // TODO: Build GymMember object from querying DB for the member and start deletion process
+    }
+
+    private void openMemberClassScheduleSearch() {
+        long memberID = getMemberIDFromUser();
+
+        // TODO: implement 
     }
 
     // Functions to grab input from user
@@ -184,7 +195,7 @@ public class MemberOperations implements OperationsInterface {
         long memberID = 0;
         while ( true ) {
             System.out.println();
-            userInputMemberID = scanner.nextLine();
+            userInputMemberID = readInputFromUser();
 
             // Check to see input can be turned into an integer
             try {

@@ -13,9 +13,12 @@ public class CommonPrints {
         System.out.println( "\nWelcome to the 460 Gym Interface" );
     }
 
+    /**
+     * Prints the prompt to user for which type of operation they would like to perform
+     */
     public static void promptUserToSelectTypeOfOperation() {
-        System.out.println( "Select what type of operation you would like to perform." );
-        System.out.println( "--------------------------------------------------------" );
+        System.out.println( "Select what type of operation you would like to perform" );
+        System.out.println( "-------------------------------------------------------" );
     }
 
     /**
@@ -24,18 +27,26 @@ public class CommonPrints {
     public static void printStandardOptions() {
         System.out.println( "1) Gym member operations" );
         System.out.println( "2) Course operations" );
-        System.out.println( "3) Admin Operations" );
-        System.out.println( "4) Exit" );
+        System.out.println( "3) Package Operations" );
+        System.out.println( "4) Admin Operations" );
+        System.out.println( "5) Exit" );
     }
 
+    /**
+     * Prints the available gym member options
+     */
     public static void printGymMemberOperations() {
         System.out.println( "Gym Member Operations" );
         System.out.println( "---------------------" );
         System.out.println( "1) Add a new member" );
         System.out.println( "2) Delete a member" );
-        System.out.println( "3) Return to previous menu" );
+        System.out.println( "3) Check member's class schedule" );
+        System.out.println( "4) Return to previous menu" );
     }
 
+    /**
+     * Prints the available course operations
+     */
     public static void printCourseOperations() {
         System.out.println( "Course Operations" );
         System.out.println( "-----------------" );
@@ -44,10 +55,34 @@ public class CommonPrints {
         System.out.println( "3) Return to previous menu" );
     }
 
+    public static void printPackageOperations() {
+        System.out.println( "Package Operations" );
+        System.out.println( "------------------" );
+        System.out.println( "1) Add Package" );
+        System.out.println( "2) Update Package" );
+        System.out.println( "3) Remove Package" );
+        System.out.println( "4) Return to previous menu" );
+    }
+
+    public static void printAdminOperations() {
+        System.out.println( "Admin Operations" );
+        System.out.println( "----------------" );
+        System.out.println( "1) List members who have a negative balance" );
+        System.out.println( "2) List all trainer's working hours" );
+        System.out.println( "3) Register a new trainer" );
+        System.out.println( "4) Return to previous menu" );
+    }
+
+    /**
+     * Prints that the option user selected was invalid
+     */
     public static void printInvalidOptionMessage() {
         System.out.println( "Please enter a valid option from above" );
     }
 
+    /**
+     * Prints when the gym member creation was cancelled
+     */
     public static void printMemberCreationCancelled() {
         System.out.println( "\nCancelling member creation" );
     }

@@ -7,8 +7,9 @@ import utils.CommonPrints;
 
 public class CourseOperations implements OperationsInterface {
 
-    private static int MINIMUM_INTEGER_OPTION = 1;
-    private static int MAX_INTEGER_OPTION = 3;
+    private static final int MINIMUM_INTEGER_OPTION = 1;
+    private static final int MAX_INTEGER_OPTION = 3;
+    private static final String EXIT = "CANCEL";
 
     // Valid integer options
     private static final int ADD_COURSE_OPTION = 1;
@@ -28,12 +29,12 @@ public class CourseOperations implements OperationsInterface {
 
     @Override
     public void openMenu() {
-        exitSignal = false;
         System.out.println();
+        exitSignal = false;
         CommonPrints.printCourseOperations();
         String userInput = null;
         int option = 0;
-        while ( true ) {
+        while ( !exitSignal ) {
             System.out.println();
             userInput = scanner.nextLine();
             // Validate that input is an integer
@@ -52,12 +53,14 @@ public class CourseOperations implements OperationsInterface {
             break;
         }
 
+        System.out.println();
         // Now go through whatever operation was selected
         switch ( option ) {
             case ADD_COURSE_OPTION:
                 openAddCourseWizard();
                 break;
             case DELETE_COURSE_OPTION:
+                openRemoveCourseWizard();
                 break;
             case RETURN_TO_MAIN_MENU_OPTION:
                 break;
@@ -66,15 +69,29 @@ public class CourseOperations implements OperationsInterface {
         System.out.println();
     }
 
+    /**
+     * Starts the process of creating a new course
+     */
     private void openAddCourseWizard() {
         System.out.println( "New Course Wizard ( Type 'Cancel' at anytime to cancel course creation )" );
         System.out.println( "------------------------------------------------------------------------" );
     }
 
+    /**
+     * Starts the process of removing a course
+     */
     private void openRemoveCourseWizard() {
         System.out.println( "Remove Course Wizard ( Type 'Cancel' at anytime to cancel course removal )" );
         System.out.println( "--------------------------------------------------------------------------" );
 
+    }
+
+    private String getInputFromUser() {
+        String input = scanner.nextLine();
+        if ( input.equalsIgnoreCase( EXIT ) ) {
+            exitSignal = true;
+        }
+        return input;
     }
 
 }
