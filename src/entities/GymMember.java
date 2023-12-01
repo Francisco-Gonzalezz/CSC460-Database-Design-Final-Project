@@ -19,6 +19,14 @@ public class GymMember {
         this.email = email;
     }
 
+    public GymMember( long memberId, String firstName, String lastName, String phoneNumber, String email ) {
+        this.memberID = memberId;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.phoneNumber = phoneNumber;
+        this.email = email;
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
