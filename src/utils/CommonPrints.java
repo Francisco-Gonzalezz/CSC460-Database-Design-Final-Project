@@ -27,9 +27,10 @@ public class CommonPrints {
     public static void printStandardOptions() {
         System.out.println( "1) Gym member operations" );
         System.out.println( "2) Course operations" );
-        System.out.println( "3) Package Operations" );
-        System.out.println( "4) Admin Operations" );
-        System.out.println( "5) Exit" );
+        System.out.println( "3) Package operations" );
+        System.out.println( "4) Rental Operations" );
+        System.out.println( "5) Admin operations" );
+        System.out.println( "6) Exit" );
     }
 
     /**
@@ -55,6 +56,9 @@ public class CommonPrints {
         System.out.println( "3) Return to previous menu" );
     }
 
+    /**
+     * Prints the avaiable Course Package Operations
+     */
     public static void printPackageOperations() {
         System.out.println( "Package Operations" );
         System.out.println( "------------------" );
@@ -64,6 +68,19 @@ public class CommonPrints {
         System.out.println( "4) Return to previous menu" );
     }
 
+    public static void printRentalOperations() {
+        System.out.println( "Rental Operations" );
+        System.out.println( "-----------------" );
+        System.out.println( "1) Rent out an item" );
+        System.out.println( "2) Return an item" );
+        System.out.println( "3) Check rental status for member" );
+        System.out.println( "4) Check quantity of items" );
+        System.out.println( "5) Return to previous menu" );
+    }
+
+    /**
+     * Prints the available admin operations
+     */
     public static void printAdminOperations() {
         System.out.println( "Admin Operations" );
         System.out.println( "----------------" );

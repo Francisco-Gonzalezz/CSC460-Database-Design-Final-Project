@@ -2,7 +2,7 @@ package entities;
 
 public class GymMember {
 
-    private long memberID;
+    private int memberID;
 
     private String firstName;
 
@@ -12,14 +12,14 @@ public class GymMember {
 
     private String email;
 
-    public GymMember( String firstName, String lastName, String phoneNumber, String email ) {
+    public GymMember(String firstName, String lastName, String phoneNumber, String email) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.phoneNumber = phoneNumber;
         this.email = email;
     }
 
-    public GymMember( long memberId, String firstName, String lastName, String phoneNumber, String email ) {
+    public GymMember(int memberId, String firstName, String lastName, String phoneNumber, String email) {
         this.memberID = memberId;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -30,19 +30,19 @@ public class GymMember {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append( "Member Name: " + firstName + " " + lastName + "\n" );
-        sb.append( "Member Phone#: " + phoneNumber + "\n" );
-        sb.append( "Member Email: " + email );
+        sb.append("Member Name: " + firstName + " " + lastName + "\n");
+        sb.append("Member Phone#: " + phoneNumber + "\n");
+        sb.append("Member Email: " + email);
         return sb.toString();
     }
 
     // Getters and Setters
 
-    public long getMemberID() {
+    public int getMemberID() {
         return memberID;
     }
 
-    public void setMemberID( long memberID ) {
+    public void setMemberID(int memberID) {
         this.memberID = memberID;
     }
 
@@ -50,7 +50,7 @@ public class GymMember {
         return firstName;
     }
 
-    public void setFirstName( String firstName ) {
+    public void setFirstName(String firstName) {
         this.firstName = firstName;
     }
 
@@ -58,7 +58,7 @@ public class GymMember {
         return lastName;
     }
 
-    public void setLastName( String lastName ) {
+    public void setLastName(String lastName) {
         this.lastName = lastName;
     }
 
@@ -66,7 +66,7 @@ public class GymMember {
         return phoneNumber;
     }
 
-    public void setPhoneNumber( String phoneNumber ) {
+    public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
     }
 
@@ -74,7 +74,7 @@ public class GymMember {
         return email;
     }
 
-    public void setEmail( String email ) {
+    public void setEmail(String email) {
         this.email = email;
     }
 
