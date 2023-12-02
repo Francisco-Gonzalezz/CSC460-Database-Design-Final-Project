@@ -4,6 +4,8 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.HashMap;
+import java.util.Map;
 
 import entities.GymMember;
 import enums.MembershipLevelEnum;
@@ -64,11 +66,65 @@ public class DBUtils {
             String email = result.getString( "email" );
             MembershipLevelEnum membershipLevel = MembershipLevelEnum.valueOf( result.getString( "membershipLevel" ) );
             member = new GymMember( memberId, firstName, lastname, phoneNumber, email, membershipLevel );
+            stmt.close();
         } catch ( SQLException e ) {
             System.out.println( "Unable to retrieve member details" );
             return null;
         }
         return member;
+    }
+
+    /**
+     * Queries db for all packages and their cost
+     * @param dbConnection Connection to db
+     * @return Map of package name and it's associated cost
+     */
+    public static Map<String, Float> getPackagesAndPrices( Connection dbConnection ) {
+        Map<String, Float> packages = new HashMap<>();
+        try {
+            Statement stmt = dbConnection.createStatement();
+            ResultSet result = stmt.executeQuery( "SELECT * FROM Package" );
+            while ( result.next() ) {
+                String packageName = result.getString( "packagename" );
+                Float cost = result.getFloat( "Cost" );
+                packages.put( packageName, cost );
+            }
+            stmt.close();
+        } catch ( SQLException e ) {
+            System.out.println( "Unable to retrieve all packages" );
+            return null;
+        }
+
+        return packages;
+    }
+
+    public static Map<String, Integer> getCheckoutRentalsForMember( int memberID, Connection dbConnection ) {
+        Map<String, Integer> rentals = new HashMap<>();
+
+        try {
+            Statement stmt = dbConnection.createStatement();
+            ResultSet result = stmt.executeQuery( generateCheckoutRentalSQL( memberID ) );
+            stmt.close();
+        } catch ( SQLException e ) {
+            System.out.println( "Unable to find all rentals" );
+            return null;
+        }
+        return rentals;
+    }
+
+    /**
+     * Generate a SQL Query returning information about rentals that a member has
+     * @param memberID
+     * @return SQL Query as descibed above
+     */
+    private static String generateCheckoutRentalSQL( int memberID ) {
+        StringBuilder sqlBuilder = new StringBuilder(
+            "SELECT RentalLog.ItemNumber, RentalLog.MemberID RentalItem.ItemNumber, RentalItem.ItemName, RentalLog.Quantity\n" );
+        sqlBuilder.append( "FROM RentalLog\n" );
+        sqlBuilder.append( "INNER JOIN RentalItem ON RentalLog.ItemNumber = RentalItem.ItemNumber\n" );
+        sqlBuilder.append( "WHERE RentalLog.CheckIn is null AND RentalLog.MemberID = " + memberID );
+
+        return sqlBuilder.toString();
     }
 
 }

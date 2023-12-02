@@ -1,6 +1,7 @@
 package operations;
 
 import java.sql.Connection;
+import java.util.Map;
 import java.util.Scanner;
 
 import entities.GymMember;
@@ -108,11 +109,36 @@ public class MemberOperations implements OperationsInterface {
         boolean returnCode = DBUtils.addNewGymMemberToDB( newMember, dbConnection ); // Add the member to the DB
         if ( !returnCode ) {
             System.out.println( "\nERROR: member creation FAILED" );
-        } else {
-            System.out.println( "\nMember was created" );
+            return;
         }
 
-        // TODO: Prompt for which package the user wants to purchase
+        promptUserForPackagePurchase( newMember );
+    }
+
+    private void promptUserForPackagePurchase( GymMember member ) {
+        System.out.println( "\nSelect a package for user to purchase ( Type name of package )" );
+        System.out.println( "---------------------------------------------------------------" );
+        Map<String, Float> packages = DBUtils.getPackagesAndPrices( dbConnection );
+        if ( packages.isEmpty() ) {
+            System.err.println( "Unable to find any packages. Cancelling purchase." );
+            return;
+        }
+        for ( String packageName : packages.keySet() ) {
+            float cost = packages.get( packageName );
+            System.out.println( packageName + "\t$" + cost );
+        }
+        String userInput = null;
+        while ( true ) {
+            userInput = scanner.nextLine();
+            if ( !packages.containsKey( userInput ) ) {
+                System.out.println( "Please enter a choice from above." );
+                continue;
+            }
+            break;
+        }
+
+        // TODO: Update tables showing that the member purchased this package
+
     }
 
     private void openRemoveMemberWizard() {
