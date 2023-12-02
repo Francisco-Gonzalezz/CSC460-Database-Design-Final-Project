@@ -16,6 +16,8 @@ public class GymMember {
 
     private MembershipLevelEnum membershipLevel;
 
+    private float accountBalance;
+
     public GymMember( String firstName, String lastName, String phoneNumber, String email ) {
         this.firstName = firstName;
         this.lastName = lastName;
@@ -30,13 +32,15 @@ public class GymMember {
         String lastName,
         String phoneNumber,
         String email,
-        MembershipLevelEnum membershipLevel ) {
+        MembershipLevelEnum membershipLevel,
+        float accountBalance ) {
         this.memberID = memberId;
         this.firstName = firstName;
         this.lastName = lastName;
         this.phoneNumber = phoneNumber;
         this.email = email;
         this.membershipLevel = membershipLevel;
+        this.accountBalance = accountBalance;
     }
 
     @Override
@@ -49,6 +53,14 @@ public class GymMember {
     }
 
     // Getters and Setters
+
+    public float getBalance() {
+        return accountBalance;
+    }
+
+    public void setBalance( float balance ) {
+        this.accountBalance = balance;
+    }
 
     public int getMemberID() {
         return memberID;

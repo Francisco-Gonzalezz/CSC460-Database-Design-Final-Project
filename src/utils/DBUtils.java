@@ -23,7 +23,7 @@ public class DBUtils {
     public static boolean addNewGymMemberToDB( GymMember member, Connection dbConnection ) {
         try {
             Statement stmt = dbConnection.createStatement();
-            ResultSet result = stmt.executeQuery( createInsertMemberQuery( member ) ); // Unsure if result set is needed by why not have this just in case!
+            int result = stmt.executeUpdate( createInsertMemberQuery( member ) );
             stmt.close(); // Fun fact this will close the result sets too!
             return true;
         } catch ( SQLException e ) {
@@ -64,8 +64,16 @@ public class DBUtils {
             String lastname = result.getString( "lastname" );
             String phoneNumber = result.getString( "phonenumber" );
             String email = result.getString( "email" );
+            float accountBalance = result.getFloat( "accountBalance" );
             MembershipLevelEnum membershipLevel = MembershipLevelEnum.valueOf( result.getString( "membershipLevel" ) );
-            member = new GymMember( memberId, firstName, lastname, phoneNumber, email, membershipLevel );
+            member = new GymMember(
+                memberId,
+                firstName,
+                lastname,
+                phoneNumber,
+                email,
+                membershipLevel,
+                accountBalance );
             stmt.close();
         } catch ( SQLException e ) {
             System.out.println( "Unable to retrieve member details" );
@@ -98,12 +106,28 @@ public class DBUtils {
         return packages;
     }
 
+    /**
+     * Retrieves all the names of the rentals that the member has made and sums all like rentals and places them into
+     * a map.
+     * @param memberID ID of member
+     * @param dbConnection Connection to DB
+     * @return Map<String,Integer> Containing rental names and the quantity borrowed from member
+     */
     public static Map<String, Integer> getCheckoutRentalsForMember( int memberID, Connection dbConnection ) {
         Map<String, Integer> rentals = new HashMap<>();
-
         try {
             Statement stmt = dbConnection.createStatement();
             ResultSet result = stmt.executeQuery( generateCheckoutRentalSQL( memberID ) );
+            while ( result.next() ) {
+                String itemName = result.getString( "RentalItem.ItemName" );
+                int quantityBorrowed = result.getInt( "RentalLog.Quantity" );
+                // Add up all quantities of the same type of item
+                if ( rentals.containsKey( itemName ) ) {
+                    rentals.put( itemName, rentals.get( itemName ) + quantityBorrowed );
+                } else {
+                    rentals.put( itemName, quantityBorrowed );
+                }
+            }
             stmt.close();
         } catch ( SQLException e ) {
             System.out.println( "Unable to find all rentals" );
@@ -125,6 +149,25 @@ public class DBUtils {
         sqlBuilder.append( "WHERE RentalLog.CheckIn is null AND RentalLog.MemberID = " + memberID );
 
         return sqlBuilder.toString();
+    }
+
+    /**
+     * Removes a quantity of an item 
+     * @param itemName Name of item
+     * @param quantityToRemove Quantity to remove
+     * @param dbConnection Connection to DB
+     */
+    public static void removeQuantityFromRentalItems( String itemName, int quantityToRemove, Connection dbConnection ) {
+        try {
+            Statement stmt = dbConnection.createStatement();
+            int result = stmt
+                .executeUpdate(
+                    "UPDATE RentalItem SET Quantity = Quantity - " + quantityToRemove + " WHERE ItemName = '" + itemName
+                        + "'" );
+            stmt.close();
+        } catch ( SQLException e ) {
+            System.out.println( "Unable to update rental item quantity" );
+        }
     }
 
 }

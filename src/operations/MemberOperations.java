@@ -157,11 +157,23 @@ public class MemberOperations implements OperationsInterface {
             }
         }
 
-        // TODO: Check for rental items
+        // Check user for negative balance
+        if ( member.getBalance() < 0 ) {
+            System.out
+                .println( "Member must pay $" + member.getBalance() + " before they can cancel their membership" );
+            return;
+        }
 
-        // TODO: Check for unpaid balances
+        // Update rental items
+        Map<String, Integer> unreturnedRentalsOfMember = DBUtils
+            .getCheckoutRentalsForMember( member.getMemberID(), dbConnection );
+        for ( String rental : unreturnedRentalsOfMember.keySet() ) {
+            int quantityToSubtract = unreturnedRentalsOfMember.get( rental );
+            DBUtils.removeQuantityFromRentalItems( rental, quantityToSubtract, dbConnection );
+        }
 
         // TODO: Update any classes that member is in to remove them from it
+
     }
 
     private void openMemberClassScheduleSearch() {
