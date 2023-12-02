@@ -5,6 +5,7 @@ clean:
 	rm -rf ./gui/*.class
 	rm -rf ./exit_thread/*.class
 	rm -rf ./entities/*.class
+	rm -rf ./enums/*.class
 linecount:
 	wc -l ./*.java
 	wc -l ./utils/*.java

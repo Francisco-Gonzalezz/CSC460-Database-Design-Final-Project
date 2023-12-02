@@ -5,6 +5,7 @@ import java.util.Scanner;
 
 import entities.GymMember;
 import utils.CommonPrints;
+import utils.DBUtils;
 import utils.ValidationUtils;
 
 public class MemberOperations implements OperationsInterface {
@@ -104,12 +105,37 @@ public class MemberOperations implements OperationsInterface {
         }
         // Store as object to keep all info in one place for DB insertion
         GymMember newMember = new GymMember( firstName, lastName, phoneNumber, email );
+        boolean returnCode = DBUtils.addNewGymMemberToDB( newMember, dbConnection ); // Add the member to the DB
+        if ( !returnCode ) {
+            System.out.println( "\nERROR: member creation FAILED" );
+        } else {
+            System.out.println( "\nMember was created" );
+        }
+
+        // TODO: Prompt for which package the user wants to purchase
     }
 
     private void openRemoveMemberWizard() {
-        long memberID = getMemberIDFromUser();
+        System.out.println( "Remove Member Wizard ( Type 'Cancel' at anytime to cancel member deletion )" );
+        System.out.println( "---------------------------------------------------------------------------" );
+        GymMember member = null;
+        while ( member == null ) {
+            int memberID = getMemberIDFromUser();
+            if ( exitSignal ) {
+                System.out.println( "Cancelling member deletion" );
+                return;
+            }
+            member = DBUtils.retrieveMemberFromID( memberID, dbConnection );
+            if ( member == null ) {
+                System.out.println( "Invalid member id. Verify that id was typed in correctly" );
+            }
+        }
 
-        // TODO: Build GymMember object from querying DB for the member and start deletion process
+        // TODO: Check for rental items
+
+        // TODO: Check for unpaid balances
+
+        // TODO: Update any classes that member is in to remove them from it
     }
 
     private void openMemberClassScheduleSearch() {
@@ -189,17 +215,17 @@ public class MemberOperations implements OperationsInterface {
     * member id
     * @return Member ID as an integer
     */
-    private long getMemberIDFromUser() {
+    private int getMemberIDFromUser() {
         System.out.println( "Enter the member id" );
         String userInputMemberID = null;
-        long memberID = 0;
+        int memberID;
         while ( true ) {
             System.out.println();
             userInputMemberID = readInputFromUser();
 
             // Check to see input can be turned into an integer
             try {
-                memberID = Long.valueOf( userInputMemberID );
+                memberID = Integer.valueOf( userInputMemberID );
             } catch ( NumberFormatException e ) {
                 System.out.println( "Member ID should only contain numeric values" );
                 continue;
