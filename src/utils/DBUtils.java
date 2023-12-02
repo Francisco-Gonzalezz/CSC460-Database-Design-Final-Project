@@ -12,6 +12,23 @@ import enums.MembershipLevelEnum;
 
 public class DBUtils {
 
+    private static final String USERNAME = "BODE1";
+    private static final String PERIOD = ".";
+
+    // Table names
+    private static final String MEMBER_TABLE = "MEMBER";
+    private static final String MEMBERSHIPLEVEL_TABLE = "MEMBERSHIPLEVEL";
+    private static final String MEMBER_CLASS_TABLE = "MEMBERCLASS";
+    private static final String CLASS_TABLE = "CLASS";
+    private static final String TRAINER_TABLE = "TRAINER";
+    private static final String COURSE_TABLE = "COURSE";
+    private static final String PACKAGE_TABLE = "PACKAGE";
+    private static final String COURSE_PACKAGE_TABLE = "COURSEPACKAGE";
+    private static final String MEMBER_PACKAGE_TABLE = "MEMBERPACKAGE";
+    private static final String TRANSACTION_TABLE = "TRANSACTION";
+    private static final String RENTAL_ITEM_TABLE = "RENTALITEM";
+    private static final String RENTAL_LOG_TABLE = "RENTALLOG";
+
     private DBUtils() {
     }
 
@@ -37,7 +54,8 @@ public class DBUtils {
      * @return The dynamic query to insert into a db
      */
     private static String createInsertMemberQuery( GymMember member ) {
-        StringBuilder sqlBuilder = new StringBuilder( "INSERT INTO Member VALUES(\n" );
+        StringBuilder sqlBuilder = new StringBuilder(
+            "INSERT INTO " + USERNAME + PERIOD + MEMBER_TABLE + " VALUES(\n" );
         sqlBuilder.append( "member_sequence.nextval,\n" );
         sqlBuilder.append( "'" + member.getFirstName() + "',\n" );
         sqlBuilder.append( "'" + member.getLastName() + "',\n" );
@@ -58,14 +76,15 @@ public class DBUtils {
         GymMember member = null;
         try {
             Statement stmt = dbConnection.createStatement();
-            ResultSet result = stmt.executeQuery( "SELECT * FROM Member WHERE memberID = " + memberId ); // This should only return a single result
+            ResultSet result = stmt
+                .executeQuery( "SELECT * FROM " + USERNAME + PERIOD + MEMBER_TABLE + " WHERE MEMBERID = " + memberId );
             result.next(); // Move the cursor 
-            String firstName = result.getString( "firstname" );
-            String lastname = result.getString( "lastname" );
-            String phoneNumber = result.getString( "phonenumber" );
-            String email = result.getString( "email" );
-            float accountBalance = result.getFloat( "accountBalance" );
-            MembershipLevelEnum membershipLevel = MembershipLevelEnum.valueOf( result.getString( "membershipLevel" ) );
+            String firstName = result.getString( "FNAME" );
+            String lastname = result.getString( "LNAME" );
+            String phoneNumber = result.getString( "PHONENUM" );
+            String email = result.getString( "EMAIL" );
+            MembershipLevelEnum membershipLevel = MembershipLevelEnum.valueOf( result.getString( "MEMBERSHIPLEVEL" ) );
+            float accountBalance = result.getFloat( "ACCOUNTBALANCE" );
             member = new GymMember(
                 memberId,
                 firstName,
@@ -91,10 +110,10 @@ public class DBUtils {
         Map<String, Float> packages = new HashMap<>();
         try {
             Statement stmt = dbConnection.createStatement();
-            ResultSet result = stmt.executeQuery( "SELECT * FROM Package" );
+            ResultSet result = stmt.executeQuery( "SELECT * FROM " + USERNAME + PERIOD + PACKAGE_TABLE );
             while ( result.next() ) {
-                String packageName = result.getString( "packagename" );
-                Float cost = result.getFloat( "Cost" );
+                String packageName = result.getString( "PACKAGENAME" );
+                Float cost = result.getFloat( "COST" );
                 packages.put( packageName, cost );
             }
             stmt.close();
@@ -119,8 +138,8 @@ public class DBUtils {
             Statement stmt = dbConnection.createStatement();
             ResultSet result = stmt.executeQuery( generateCheckoutRentalSQL( memberID ) );
             while ( result.next() ) {
-                String itemName = result.getString( "RentalItem.ItemName" );
-                int quantityBorrowed = result.getInt( "RentalLog.Quantity" );
+                String itemName = result.getString( RENTAL_ITEM_TABLE + PERIOD + "ITEMNAME" );
+                int quantityBorrowed = result.getInt( RENTAL_LOG_TABLE + PERIOD + "QUANTITY" );
                 // Add up all quantities of the same type of item
                 if ( rentals.containsKey( itemName ) ) {
                     rentals.put( itemName, rentals.get( itemName ) + quantityBorrowed );
@@ -143,10 +162,13 @@ public class DBUtils {
      */
     private static String generateCheckoutRentalSQL( int memberID ) {
         StringBuilder sqlBuilder = new StringBuilder(
-            "SELECT RentalLog.ItemNumber, RentalLog.MemberID RentalItem.ItemNumber, RentalItem.ItemName, RentalLog.Quantity\n" );
-        sqlBuilder.append( "FROM RentalLog\n" );
-        sqlBuilder.append( "INNER JOIN RentalItem ON RentalLog.ItemNumber = RentalItem.ItemNumber\n" );
-        sqlBuilder.append( "WHERE RentalLog.CheckIn is null AND RentalLog.MemberID = " + memberID );
+            "SELECT RENTALLOG.ITEMNUM, RENTALLOG.MEMBERID, RENTALITEM.ITEMNUM, RENTALITEM.ITEMNAME, RENTALLOG.QUANTITY\n" );
+        sqlBuilder.append( "FROM " + USERNAME + PERIOD + RENTAL_LOG_TABLE + " RentalLog\n" );
+        sqlBuilder
+            .append(
+                "INNER JOIN " + USERNAME + PERIOD + RENTAL_ITEM_TABLE
+                    + " ON RENTALLOG.ITEMNUM = RENTALITEM.ITEMNUM\n" );
+        sqlBuilder.append( "WHERE RENTALLOG.RETURNTIME is null AND RENTALLOG.MEMBERID = " + memberID );
 
         return sqlBuilder.toString();
     }
@@ -162,8 +184,8 @@ public class DBUtils {
             Statement stmt = dbConnection.createStatement();
             int result = stmt
                 .executeUpdate(
-                    "UPDATE RentalItem SET Quantity = Quantity - " + quantityToRemove + " WHERE ItemName = '" + itemName
-                        + "'" );
+                    "UPDATE " + RENTAL_ITEM_TABLE + " SET QUANTITY = QUANTITY - " + quantityToRemove
+                        + " WHERE ITEMNAME = '" + itemName.toUpperCase() + "'" );
             stmt.close();
         } catch ( SQLException e ) {
             System.out.println( "Unable to update rental item quantity" );
