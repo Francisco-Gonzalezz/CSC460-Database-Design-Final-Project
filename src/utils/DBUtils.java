@@ -1,12 +1,14 @@
 package utils;
 
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.HashMap;
 import java.util.Map;
 
+import entities.Class;
 import entities.GymMember;
 import entities.Transaction;
 import enums.MembershipLevelEnum;
@@ -324,6 +326,31 @@ public class DBUtils {
         sqlBuilder.append( "'" + transaction.getXactType() + "',\n" );
         sqlBuilder.append( transaction.getXactDate() + ",\n" );
         sqlBuilder.append( transaction.getAmount() );
+        sqlBuilder.append( ")" );
+        return sqlBuilder.toString();
+    }
+
+    public static void saveNewClass( Class newClass, Connection dbConnection ) {
+        try {
+            Statement stmt = dbConnection.createStatement();
+            stmt.executeUpdate( generateInsertClassQuery( newClass ) );
+            stmt.close();
+        } catch ( SQLException e ) {
+            System.out.println( "Unable to save new class" );
+        }
+    }
+
+    private static String generateInsertClassQuery( Class newClass ) {
+        StringBuilder sqlBuilder = new StringBuilder( "INSERT INTO " + BODE1 + PERIOD + CLASS_TABLE + " VALUES (" );
+        sqlBuilder.append( newClass.getClassNum() + ",\n" );
+        sqlBuilder.append( newClass.getCourseID() + ",\n" );
+        sqlBuilder.append( newClass.getTrainerID() + ",\n" );
+        sqlBuilder.append( new Date( newClass.getStartTime().getTime() ) + ",\n" );
+        sqlBuilder.append( newClass.getClassDuration() + ",\n" );
+        sqlBuilder.append( newClass.getStartDate() + ",\n" );
+        sqlBuilder.append( newClass.getEndDate() + ",\n" );
+        sqlBuilder.append( newClass.getCurrentEnrollment() + ",\n" );
+        sqlBuilder.append( newClass.getCapacity() );
         sqlBuilder.append( ")" );
         return sqlBuilder.toString();
     }
