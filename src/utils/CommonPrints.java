@@ -41,8 +41,10 @@ public class CommonPrints {
         System.out.println( "---------------------" );
         System.out.println( "1) Add a new member" );
         System.out.println( "2) Delete a member" );
-        System.out.println( "3) Check member's class schedule" );
-        System.out.println( "4) Return to previous menu" );
+        System.out.println( "3) Purchase a package" );
+        System.out.println( "4) Add funds to account" );
+        System.out.println( "5) Check member's class schedule" );
+        System.out.println( "6) Return to previous menu" );
     }
 
     /**

@@ -1,25 +1,29 @@
 package operations;
 
 import java.sql.Connection;
+import java.sql.Date;
 import java.util.Map;
 import java.util.Scanner;
 
 import entities.GymMember;
+import entities.Transaction;
 import utils.CommonPrints;
 import utils.DBUtils;
 import utils.ValidationUtils;
 
 public class MemberOperations implements OperationsInterface {
 
-    private static final int MAX_MEMBER_OPERATIONS = 4; // Max valid integer option for member menu
+    private static final int MAX_MEMBER_OPERATIONS = 6; // Max valid integer option for member menu
     private static final int MIN_OPERATIONS = 1; // Min valid integer option for member menu
     private static final int SMALLEST_MEMBER_ID = 1; // Smallest member id should be 1
 
     // Values of each of the member operations
     private static final int ADD_MEMBER_OPTION = 1;
     private static final int REMOVE_MEMBER_OPTION = 2;
-    private static final int CHECK_MEMBER_SCHEDULE_OPTION = 3;
-    private static final int RETURN_TO_MAIN_MENU_OPTION = 4;
+    private static final int PURCHASE_PACKAGE_OPTION = 3;
+    private static final int ADD_FUNDS_OPTION = 4;
+    private static final int CHECK_MEMBER_SCHEDULE_OPTION = 5;
+    private static final int RETURN_TO_MAIN_MENU_OPTION = 6;
     private static final String EXIT = "CANCEL";
 
     private Scanner scanner;
@@ -68,6 +72,12 @@ public class MemberOperations implements OperationsInterface {
             case REMOVE_MEMBER_OPTION:
                 openRemoveMemberWizard();
                 break;
+            case PURCHASE_PACKAGE_OPTION:
+                memberPackagePurchase();
+                break;
+            case ADD_FUNDS_OPTION:
+                rechargeFunds();
+                break;
             case CHECK_MEMBER_SCHEDULE_OPTION:
                 openMemberClassScheduleSearch();
                 break;
@@ -76,6 +86,68 @@ public class MemberOperations implements OperationsInterface {
         }
 
         System.out.println();
+    }
+
+    private void rechargeFunds() {
+        // Get gym member information
+        GymMember member = null;
+        while ( member == null ) {
+            int memberID = getMemberIDFromUser();
+            if ( exitSignal ) {
+                System.out.println( "Cancelling member deletion" );
+                return;
+            }
+            member = DBUtils.retrieveMemberFromID( memberID, dbConnection );
+            if ( member == null ) {
+                System.out.println( "Invalid member id. Verify that id was typed in correctly" );
+            }
+        }
+
+        System.out.println( "\nCurrent account balance: $" + member.getBalance() );
+        System.out.println( "How much money would you like to recharge with?" );
+        // Enter amount of funds that they want to put into their account
+        float rechargeAmount = 0;
+        while ( true ) {
+            String input = scanner.nextLine();
+            try {
+                rechargeAmount = Float.valueOf( input );
+            } catch ( NumberFormatException e ) {
+                System.out.println( "Please enter a numeric value" );
+                continue;
+            }
+
+            if ( rechargeAmount < 0 ) {
+                System.out.println( "Recharge number must be positive" );
+                continue;
+            }
+            break;
+        }
+        makePurchaseOrRecharge( member, rechargeAmount );
+    }
+
+    private void makePurchaseOrRecharge( GymMember member, float amount ) {
+        // Update member balance and save change
+        member.setBalance( member.getBalance() + amount );
+        DBUtils.saveChangesToMember( member, dbConnection );
+        createTransaction( member, amount, dbConnection );
+    }
+
+    private void createTransaction( GymMember member, float amount, Connection dbConnection ) {
+        int generatedID = DBUtils.generateIDNumberFromSequence( dbConnection );
+        String transactionType = null;
+        if ( amount < 0 ) {
+            transactionType = "PURCHASE";
+        } else {
+            transactionType = "RECHARGE";
+        }
+
+        // Create the transaction entity
+        Transaction transaction = new Transaction(
+            generatedID,
+            member.getMemberID(),
+            transactionType,
+            new Date( System.currentTimeMillis() ),
+            amount );
     }
 
     /**
@@ -117,6 +189,23 @@ public class MemberOperations implements OperationsInterface {
         System.out.println( "\nThe new member's ID is: " + newMember.getMemberID() );
     }
 
+    private void memberPackagePurchase() {
+        GymMember member = null;
+        while ( member == null ) {
+            int memberID = getMemberIDFromUser();
+            if ( exitSignal ) {
+                System.out.println( "Cancelling member deletion" );
+                return;
+            }
+            member = DBUtils.retrieveMemberFromID( memberID, dbConnection );
+            if ( member == null ) {
+                System.out.println( "Invalid member id. Verify that id was typed in correctly" );
+            }
+        }
+
+        promptUserForPackagePurchase( member );
+    }
+
     private void promptUserForPackagePurchase( GymMember member ) {
         System.out.println( "\nSelect a package for user to purchase ( Type name of package )" );
         System.out.println( "---------------------------------------------------------------" );
@@ -139,8 +228,11 @@ public class MemberOperations implements OperationsInterface {
             break;
         }
 
-        // TODO: Update tables showing that the member purchased this package
+        float cost = packages.get( userInput );
+        cost = -cost;
+        makePurchaseOrRecharge( member, (float) cost );
 
+        DBUtils.saveChangesToMember( member, dbConnection ); // Save changes made to the member object
     }
 
     private void openRemoveMemberWizard() {

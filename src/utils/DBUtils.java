@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import entities.GymMember;
+import entities.Transaction;
 import enums.MembershipLevelEnum;
 
 public class DBUtils {
@@ -15,6 +16,8 @@ public class DBUtils {
     private static final String BODE1 = "BODE1";
     private static final String FRANCISCOG852 = "FRANCISCOG852";
     private static final String PERIOD = ".";
+    private static final String ALL_SEQ = "ALL_SEQ";
+    private static final String SEQUENCE = FRANCISCOG852 + PERIOD + ALL_SEQ;
 
     // Table names
     private static final String MEMBER_TABLE = "MEMBER";
@@ -47,9 +50,7 @@ public class DBUtils {
                 memberID = 1;
             } else {
                 numberGen = stmt
-                    .executeQuery(
-                        "SELECT " + FRANCISCOG852 + PERIOD + "MEMBER_SEQ.NEXTVAL FROM " + BODE1 + PERIOD
-                            + MEMBER_TABLE );
+                    .executeQuery( "SELECT " + SEQUENCE + PERIOD + "NEXTVAL FROM " + BODE1 + PERIOD + MEMBER_TABLE );
                 numberGen.next();
                 memberID = numberGen.getInt( "NEXTVAL" );
             }
@@ -289,6 +290,23 @@ public class DBUtils {
         } catch ( SQLException e ) {
             System.out.println( "Unable to remove member from db" );
         }
+    }
+
+    public static int generateIDNumberFromSequence( Connection dbConnection ) {
+        int generatedID = 0;
+        try {
+            Statement stmt = dbConnection.createStatement();
+            ResultSet result = stmt
+                .executeQuery( "SELECT " + SEQUENCE + PERIOD + "NEXTVAL FROM " + BODE1 + PERIOD + MEMBER_TABLE );
+            generatedID = result.getInt( "NEXTVAL" );
+        } catch ( SQLException e ) {
+            System.out.println( "Unable to generate an ID from sequence" );
+        }
+        return generatedID;
+    }
+
+    public static void saveNewTransaction( Transaction transaction ) {
+
     }
 
 }
