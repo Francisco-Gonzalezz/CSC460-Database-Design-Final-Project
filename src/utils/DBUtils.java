@@ -12,7 +12,8 @@ import enums.MembershipLevelEnum;
 
 public class DBUtils {
 
-    private static final String USERNAME = "BODE1";
+    private static final String BODE1 = "BODE1";
+    private static final String FRANCISCOG852 = "FRANCISCOG852";
     private static final String PERIOD = ".";
 
     // Table names
@@ -40,6 +41,19 @@ public class DBUtils {
     public static boolean addNewGymMemberToDB( GymMember member, Connection dbConnection ) {
         try {
             Statement stmt = dbConnection.createStatement();
+            ResultSet numberGen = null;
+            int memberID;
+            if ( !isTableEmpty( BODE1 + PERIOD + MEMBER_TABLE, dbConnection ) ) {
+                memberID = 1;
+            } else {
+                numberGen = stmt
+                    .executeQuery(
+                        "SELECT " + FRANCISCOG852 + PERIOD + "MEMBER_SEQ.NEXTVAL FROM " + BODE1 + PERIOD
+                            + MEMBER_TABLE );
+                numberGen.next();
+                memberID = numberGen.getInt( "NEXTVAL" );
+            }
+            member.setMemberID( memberID );
             int result = stmt.executeUpdate( createInsertMemberQuery( member ) );
             stmt.close(); // Fun fact this will close the result sets too!
             return true;
@@ -49,19 +63,37 @@ public class DBUtils {
     }
 
     /**
+     * 
+     * @param tableName
+     * @param dbConnection
+     * @return True if table is not empty and false if it is
+     */
+    private static boolean isTableEmpty( String tableName, Connection dbConnection ) {
+        boolean bool = false;
+        try {
+            Statement stmt = dbConnection.createStatement();
+            ResultSet result = stmt.executeQuery( "SELECT * FROM " + tableName );
+            bool = result.next();
+        } catch ( SQLException e ) {
+            System.out.println( "Something went wrong!" );
+        }
+        return bool;
+    }
+
+    /**
      * Creates a query to insert a member into the db using attributes from the GymMember object
      * @param member GymMember object to insert into the DB
      * @return The dynamic query to insert into a db
      */
     private static String createInsertMemberQuery( GymMember member ) {
-        StringBuilder sqlBuilder = new StringBuilder(
-            "INSERT INTO " + USERNAME + PERIOD + MEMBER_TABLE + " VALUES(\n" );
-        sqlBuilder.append( "member_sequence.nextval,\n" );
+        StringBuilder sqlBuilder = new StringBuilder( "INSERT INTO " + BODE1 + PERIOD + MEMBER_TABLE + " VALUES(\n" );
+        sqlBuilder.append( member.getMemberID() + ",\n" );
         sqlBuilder.append( "'" + member.getFirstName() + "',\n" );
         sqlBuilder.append( "'" + member.getLastName() + "',\n" );
         sqlBuilder.append( "'" + member.getPhoneNumber() + "',\n" );
         sqlBuilder.append( "'" + member.getEmail() + "',\n" );
-        sqlBuilder.append( "'" + member.getMembershipLevel() + "'" );
+        sqlBuilder.append( "'" + member.getMembershipLevel() + "',\n" );
+        sqlBuilder.append( member.getBalance() + "\n" );
         sqlBuilder.append( ")" );
         return sqlBuilder.toString();
     }
@@ -77,22 +109,24 @@ public class DBUtils {
         try {
             Statement stmt = dbConnection.createStatement();
             ResultSet result = stmt
-                .executeQuery( "SELECT * FROM " + USERNAME + PERIOD + MEMBER_TABLE + " WHERE MEMBERID = " + memberId );
-            result.next(); // Move the cursor 
-            String firstName = result.getString( "FNAME" );
-            String lastname = result.getString( "LNAME" );
-            String phoneNumber = result.getString( "PHONENUM" );
-            String email = result.getString( "EMAIL" );
-            MembershipLevelEnum membershipLevel = MembershipLevelEnum.valueOf( result.getString( "MEMBERSHIPLEVEL" ) );
-            float accountBalance = result.getFloat( "ACCOUNTBALANCE" );
-            member = new GymMember(
-                memberId,
-                firstName,
-                lastname,
-                phoneNumber,
-                email,
-                membershipLevel,
-                accountBalance );
+                .executeQuery( "SELECT * FROM " + BODE1 + PERIOD + MEMBER_TABLE + " WHERE MEMBERID = " + memberId );
+            if ( result.next() ) {
+                String firstName = result.getString( "FNAME" );
+                String lastname = result.getString( "LNAME" );
+                String phoneNumber = result.getString( "PHONENUM" );
+                String email = result.getString( "EMAIL" );
+                MembershipLevelEnum membershipLevel = MembershipLevelEnum
+                    .valueOf( result.getString( "MEMBERSHIPLEVEL" ) );
+                float accountBalance = result.getFloat( "ACCOUNTBALANCE" );
+                member = new GymMember(
+                    memberId,
+                    firstName,
+                    lastname,
+                    phoneNumber,
+                    email,
+                    membershipLevel,
+                    accountBalance );
+            }
             stmt.close();
         } catch ( SQLException e ) {
             System.out.println( "Unable to retrieve member details" );
@@ -110,7 +144,7 @@ public class DBUtils {
         Map<String, Float> packages = new HashMap<>();
         try {
             Statement stmt = dbConnection.createStatement();
-            ResultSet result = stmt.executeQuery( "SELECT * FROM " + USERNAME + PERIOD + PACKAGE_TABLE );
+            ResultSet result = stmt.executeQuery( "SELECT * FROM " + BODE1 + PERIOD + PACKAGE_TABLE );
             while ( result.next() ) {
                 String packageName = result.getString( "PACKAGENAME" );
                 Float cost = result.getFloat( "COST" );
@@ -163,11 +197,10 @@ public class DBUtils {
     private static String generateCheckoutRentalSQL( int memberID ) {
         StringBuilder sqlBuilder = new StringBuilder(
             "SELECT RENTALLOG.ITEMNUM, RENTALLOG.MEMBERID, RENTALITEM.ITEMNUM, RENTALITEM.ITEMNAME, RENTALLOG.QUANTITY\n" );
-        sqlBuilder.append( "FROM " + USERNAME + PERIOD + RENTAL_LOG_TABLE + " RentalLog\n" );
+        sqlBuilder.append( "FROM " + BODE1 + PERIOD + RENTAL_LOG_TABLE + " RentalLog\n" );
         sqlBuilder
             .append(
-                "INNER JOIN " + USERNAME + PERIOD + RENTAL_ITEM_TABLE
-                    + " ON RENTALLOG.ITEMNUM = RENTALITEM.ITEMNUM\n" );
+                "INNER JOIN " + BODE1 + PERIOD + RENTAL_ITEM_TABLE + " ON RENTALLOG.ITEMNUM = RENTALITEM.ITEMNUM\n" );
         sqlBuilder.append( "WHERE RENTALLOG.RETURNTIME is null AND RENTALLOG.MEMBERID = " + memberID );
 
         return sqlBuilder.toString();
@@ -184,11 +217,77 @@ public class DBUtils {
             Statement stmt = dbConnection.createStatement();
             int result = stmt
                 .executeUpdate(
-                    "UPDATE " + RENTAL_ITEM_TABLE + " SET QUANTITY = QUANTITY - " + quantityToRemove
+                    "UPDATE " + BODE1 + PERIOD + RENTAL_ITEM_TABLE + " SET QUANTITY = QUANTITY - " + quantityToRemove
                         + " WHERE ITEMNAME = '" + itemName.toUpperCase() + "'" );
             stmt.close();
         } catch ( SQLException e ) {
             System.out.println( "Unable to update rental item quantity" );
+        }
+    }
+
+    /**
+     * Searches DB for all classes that the member is currently enrolled in and decrements the enrollment number by one.
+     * Also removes their entries in MEMBERCLASS table after
+     * @param memberID
+     * @param dbConnection
+     */
+    public static void removeMemberFromAllTheirClasses( int memberID, Connection dbConnection ) {
+        try {
+            Statement stmt = dbConnection.createStatement();
+            ResultSet result = stmt
+                .executeQuery(
+                    "SELECT CLASSNUM FROM " + BODE1 + PERIOD + MEMBER_CLASS_TABLE + " WHERE MEMBERID = " + memberID );
+            // Grab all the class numbers and update the enrollment numbers of them
+            while ( result.next() ) {
+                int classnum = result.getInt( "CLASSNUM" );
+                // Decrement the enrollment numbers
+                int returnCode = stmt
+                    .executeUpdate(
+                        "UPDATE " + BODE1 + PERIOD + CLASS_TABLE + " SET ENROLLMENT = ENROLLMENT - 1 WHERE CLASSNUM = "
+                            + classnum );
+                stmt
+                    .executeUpdate(
+                        "DELETE FROM " + BODE1 + PERIOD + MEMBER_CLASS_TABLE + " WHERE MEMBERID = " + memberID
+                            + " AND CLASSNUM = " + classnum );
+            }
+            stmt.close();
+        } catch ( SQLException e ) {
+            System.out.println( "Unable to remove member from their classes" );
+        }
+    }
+
+    public static void saveChangesToMember( GymMember member, Connection dbConnection ) {
+        try {
+            Statement stmt = dbConnection.createStatement();
+            int returnCode = stmt.executeUpdate( generateMemberUpdate( member ) );
+            stmt.close();
+        } catch ( SQLException e ) {
+            System.out.println( "Unable to update record for member" );
+        }
+    }
+
+    private static String generateMemberUpdate( GymMember member ) {
+        StringBuilder sqlBuilder = new StringBuilder( "UPDATE " + BODE1 + PERIOD + MEMBER_TABLE + ",\n" );
+        sqlBuilder.append( "SET FNAME = '" + member.getFirstName() + "',\n" );
+        sqlBuilder.append( "SET LNAME = '" + member.getLastName() + "',\n" );
+        sqlBuilder.append( "SET PHONENUM = '" + member.getPhoneNumber() + "',\n" );
+        sqlBuilder.append( "SET EMAIL = '" + member.getEmail() + "',\n" );
+        sqlBuilder.append( "SET MEMBERSHIPLEVEL = '" + member.getMembershipLevel() + "',\n" );
+        sqlBuilder.append( "SET ACCOUNTBALANCE = " + member.getBalance() + "\n" );
+        sqlBuilder.append( "WHERE MEMBERID = " + member.getMemberID() );
+
+        return sqlBuilder.toString();
+    }
+
+    public static void removeMemberFromDB( GymMember member, Connection dbConnection ) {
+        try {
+            Statement stmt = dbConnection.createStatement();
+            int returnCode = stmt
+                .executeUpdate(
+                    "DELETE FROM " + BODE1 + PERIOD + MEMBER_TABLE + " WHERE MEMBERID = " + member.getMemberID() );
+            stmt.close();
+        } catch ( SQLException e ) {
+            System.out.println( "Unable to remove member from db" );
         }
     }
 

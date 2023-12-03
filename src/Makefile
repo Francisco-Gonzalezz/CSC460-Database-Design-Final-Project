@@ -13,3 +13,5 @@ linecount:
 	wc -l ./gui/*.java
 	wc -l ./exit_thread/*.java
 	wc -l ./entities/*.java
+program:
+	javac Program4.java

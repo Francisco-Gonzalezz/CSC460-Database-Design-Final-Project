@@ -113,6 +113,8 @@ public class MemberOperations implements OperationsInterface {
         }
 
         promptUserForPackagePurchase( newMember );
+
+        System.out.println( "\nThe new member's ID is: " + newMember.getMemberID() );
     }
 
     private void promptUserForPackagePurchase( GymMember member ) {
@@ -156,6 +158,7 @@ public class MemberOperations implements OperationsInterface {
                 System.out.println( "Invalid member id. Verify that id was typed in correctly" );
             }
         }
+        System.out.println( member.toString() );
 
         // Check user for negative balance
         if ( member.getBalance() < 0 ) {
@@ -172,8 +175,11 @@ public class MemberOperations implements OperationsInterface {
             DBUtils.removeQuantityFromRentalItems( rental, quantityToSubtract, dbConnection );
         }
 
-        // TODO: Update any classes that member is in to remove them from it
+        // Update class tables where this member was a part of
+        DBUtils.removeMemberFromAllTheirClasses( member.getMemberID(), dbConnection );
 
+        // Remove member from member table
+        DBUtils.removeMemberFromDB( member, dbConnection );
     }
 
     private void openMemberClassScheduleSearch() {
@@ -265,6 +271,9 @@ public class MemberOperations implements OperationsInterface {
             try {
                 memberID = Integer.valueOf( userInputMemberID );
             } catch ( NumberFormatException e ) {
+                if ( exitSignal ) {
+                    return -1;
+                }
                 System.out.println( "Member ID should only contain numeric values" );
                 continue;
             }

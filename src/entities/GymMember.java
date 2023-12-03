@@ -24,6 +24,7 @@ public class GymMember {
         this.phoneNumber = phoneNumber;
         this.email = email;
         this.membershipLevel = MembershipLevelEnum.BASIC;
+        this.accountBalance = 0;
     }
 
     public GymMember(
@@ -48,7 +49,8 @@ public class GymMember {
         StringBuilder sb = new StringBuilder();
         sb.append( "Member Name: " + firstName + " " + lastName + "\n" );
         sb.append( "Member Phone#: " + phoneNumber + "\n" );
-        sb.append( "Member Email: " + email );
+        sb.append( "Member Email: " + email + "\n" );
+        sb.append( "Member ID: " + getMemberID() );
         return sb.toString();
     }
 

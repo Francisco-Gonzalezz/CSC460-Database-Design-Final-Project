@@ -42,6 +42,7 @@ public class Program4 {
         Connection dbConnection = null;
         try {
             dbConnection = DriverManager.getConnection( jdbcURL, username, password );
+            dbConnection.setAutoCommit( true );
         } catch ( SQLException e ) {
             System.out.println( "Unable to connect to DB." );
             System.out.println( "Check username/password" );
