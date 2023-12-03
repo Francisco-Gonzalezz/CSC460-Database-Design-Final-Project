@@ -148,6 +148,7 @@ public class MemberOperations implements OperationsInterface {
             transactionType,
             new Date( System.currentTimeMillis() ),
             amount );
+        DBUtils.saveNewTransaction( transaction, dbConnection );
     }
 
     /**

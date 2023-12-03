@@ -299,14 +299,33 @@ public class DBUtils {
             ResultSet result = stmt
                 .executeQuery( "SELECT " + SEQUENCE + PERIOD + "NEXTVAL FROM " + BODE1 + PERIOD + MEMBER_TABLE );
             generatedID = result.getInt( "NEXTVAL" );
+            stmt.close();
         } catch ( SQLException e ) {
             System.out.println( "Unable to generate an ID from sequence" );
         }
         return generatedID;
     }
 
-    public static void saveNewTransaction( Transaction transaction ) {
+    public static void saveNewTransaction( Transaction transaction, Connection dbConnection ) {
+        try {
+            Statement stmt = dbConnection.createStatement();
+            stmt.executeUpdate( generateInsertTransaction( transaction ) );
+            stmt.close();
+        } catch ( SQLException e ) {
+            System.out.println( "Unable to persist transaction" );
+        }
+    }
 
+    private static String generateInsertTransaction( Transaction transaction ) {
+        StringBuilder sqlBuilder = new StringBuilder(
+            "INSERT INTO " + BODE1 + PERIOD + TRANSACTION_TABLE + " VALUES (" );
+        sqlBuilder.append( transaction.getTransactionID() + ",\n" );
+        sqlBuilder.append( transaction.getMemberID() + ",\n" );
+        sqlBuilder.append( "'" + transaction.getXactType() + "',\n" );
+        sqlBuilder.append( transaction.getXactDate() + ",\n" );
+        sqlBuilder.append( transaction.getAmount() );
+        sqlBuilder.append( ")" );
+        return sqlBuilder.toString();
     }
 
 }
