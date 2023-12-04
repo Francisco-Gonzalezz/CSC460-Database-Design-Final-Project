@@ -16,6 +16,7 @@ import java.util.Map;
 
 import entities.Class;
 import entities.GymMember;
+import entities.Trainer;
 import entities.Transaction;
 import enums.MembershipLevelEnum;
 
@@ -512,12 +513,15 @@ public class DBUtils {
                     "SELECT FNAME, LNAME, PHONENUM FROM " + BODE1 + PERIOD + MEMBER_TABLE
                         + " WHERE ACCOUNTBALANCE < 0" );
             ResultSet result = stmt.executeQuery();
+            int i = 1;
             while ( result.next() ) {
+                String number = i + ")";
                 String firstName = result.getString( "FNAME" );
                 String lastName = result.getString( "LNAME" );
                 String fullName = firstName + " " + lastName;
                 String phoneNum = result.getString( "PHONENUM" );
-                namesAndNums.put( fullName, phoneNum );
+                namesAndNums.put( number + fullName, phoneNum );
+                i++;
             }
             stmt.close();
         } catch ( SQLException e ) {
@@ -529,10 +533,7 @@ public class DBUtils {
     public static
         Map<Timestamp, Float>
         getMemberScheduleForMonth( GymMember member, int month, Connection dbConnection ) {
-
-        // TODO: Throwing an exception here need to figure out why
-
-        Map<Timestamp, Float> startToEnd = new HashMap<>();
+        Map<Timestamp, Float> startTimeAndDuration = new HashMap<>();
         Calendar maxCalendar = Calendar.getInstance();
         maxCalendar.clear();
         maxCalendar.set( Calendar.MONTH, month );
@@ -546,37 +547,96 @@ public class DBUtils {
         Date maxDate = new Date( maxCalendar.getTime().getTime() );
         Date minDate = new Date( minCalendar.getTime().getTime() );
         try {
-            PreparedStatement memberClassStmt = dbConnection
+            PreparedStatement stmt = dbConnection
                 .prepareStatement(
                     "SELECT CLASSNUM FROM " + BODE1 + PERIOD + MEMBER_CLASS_TABLE + " WHERE MEMBERID = ?" );
-            memberClassStmt.setInt( 1, member.getMemberID() );
-            ResultSet classNumsForMember = memberClassStmt.executeQuery();
-            while ( classNumsForMember.next() ) {
-                int classNum = classNumsForMember.getInt( "CLASSNUM" );
-                PreparedStatement classInfo = dbConnection
-                    .prepareStatement(
-                        "SELECT STARTTIME, DURATION  FROM " + BODE1 + PERIOD + CLASS_TABLE + " WHERE CLASSNUM = ?" );
-                classInfo.setInt( 1, classNum );
-                ResultSet infoResult = classInfo.executeQuery();
-                Timestamp startTime;
-                float duration;
-                while ( infoResult.next() ) {
-                    Date endDate = infoResult.getDate( "ENDDATE" );
-                    if ( endDate.after( minDate ) && endDate.before( maxDate ) ) {
-                        startTime = infoResult.getTimestamp( "STARTTIME" );
-                        duration = infoResult.getFloat( "DURATION" );
-                        startToEnd.put( startTime, duration );
-                    }
+            PreparedStatement getClassInfo = dbConnection
+                .prepareStatement( "SELECT * FROM " + BODE1 + PERIOD + CLASS_TABLE + " WHERE CLASSNUM = ?" );
+            stmt.setInt( 1, member.getMemberID() );
+            ResultSet classNums = stmt.executeQuery();
+            while ( classNums.next() ) {
+                int classNum = classNums.getInt( "CLASSNUM" );
+                getClassInfo.setInt( 1, classNum );
+                ResultSet classInfo = getClassInfo.executeQuery();
+                while ( classInfo.next() ) {
+                    startTimeAndDuration.put( classInfo.getTimestamp( "STARTTIME" ), classInfo.getFloat( "DURATION" ) );
                 }
-                classInfo.close();
             }
-            memberClassStmt.close();
+            getClassInfo.close();
+            stmt.close();
         } catch ( SQLException e ) {
-            System.out.println( "Unable to retrieve member schedule" );
+            System.out.println( "Unable to retrieve schedule" );
             System.out.println( e.getMessage() );
         }
 
-        return startToEnd;
+        return startTimeAndDuration;
+    }
+
+    public static Map<String, Float> getAllTrainersWorkinghours( int month, Connection dbcConnection ) {
+        Map<String, Float> trainerHours = new HashMap<>();
+        Calendar maxCalendar = Calendar.getInstance();
+        maxCalendar.clear();
+        maxCalendar.set( Calendar.MONTH, month );
+        maxCalendar.set( Calendar.YEAR, Year.now().getValue() );
+        maxCalendar.set( Calendar.DAY_OF_MONTH, maxCalendar.getActualMaximum( Calendar.DAY_OF_MONTH ) );
+        Calendar minCalendar = Calendar.getInstance();
+        minCalendar.clear();
+        minCalendar.set( Calendar.MONTH, month );
+        minCalendar.set( Calendar.YEAR, Year.now().getValue() );
+        minCalendar.set( Calendar.DAY_OF_MONTH, minCalendar.getActualMinimum( Calendar.DAY_OF_MONTH ) );
+        Date maxDate = new Date( maxCalendar.getTime().getTime() );
+        Date minDate = new Date( minCalendar.getTime().getTime() );
+        try {
+            List<Trainer> allTrainers = listAllTrainers( dbcConnection );
+            System.out.println( allTrainers.size() );
+            PreparedStatement stmt = dbcConnection
+                .prepareStatement(
+                    "SELECT DURATION, ENDDATE FROM " + BODE1 + PERIOD + CLASS_TABLE + " WHERE TRAINERID = ?" );
+            for ( Trainer trainer : allTrainers ) {
+                float hours = 0;
+                stmt.setInt( 1, trainer.getTrainerID() );
+                ResultSet classDurationInfo = stmt.executeQuery();
+                while ( classDurationInfo.next() ) {
+                    Date endDate = classDurationInfo.getDate( "ENDDATE" );
+                    if ( endDate.before( maxDate ) && endDate.after( minDate ) ) {
+                        hours += classDurationInfo.getFloat( "DURATION" );
+                    }
+                }
+                trainerHours.put( trainer.getFullName(), hours );
+            }
+        } catch ( SQLException e ) {
+            System.out.println( "Unable to retrieve all trainers working hours" );
+        }
+        return trainerHours;
+    }
+
+    public static List<Trainer> listAllTrainers( Connection dbConnection ) {
+        List<Trainer> trainers = new ArrayList<>();
+
+        try {
+            Statement stmt = dbConnection.createStatement();
+            ResultSet trainerInfo = stmt.executeQuery( "SELECT * FROM " + BODE1 + PERIOD + TRAINER_TABLE );
+            while ( trainerInfo.next() ) {
+                int trainerID = trainerInfo.getInt( "TRAINERID" );
+                String firstName = trainerInfo.getString( "FNAME" );
+                String lastName = trainerInfo.getString( "LNAME" );
+                String phoneNum = trainerInfo.getString( "PHONENUM" );
+                Trainer trainer = new Trainer( trainerID, firstName, lastName, phoneNum );
+                trainers.add( trainer );
+            }
+            stmt.close();
+        } catch ( SQLException e ) {
+            System.out.println( "Unable to create trainer list" );
+        }
+
+        return trainers;
+    }
+
+    private String generateGetTrainerHoursQuery() {
+        StringBuilder sqlBuilder = new StringBuilder(
+            "SELECT BODE1.TRAINER.TRAINERID, BODE1.CLASS.TRAINERID, BODE1.CLASS.DURATION FROM BODE1.TRAINER INNER JOIN BODE1.CLASS ON BODE1.TRAINER.TRAINERID = BODE1.CLASS.TRAINERID" );
+
+        return sqlBuilder.toString();
     }
 
 }

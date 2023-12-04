@@ -1,6 +1,10 @@
 package operations;
 
 import java.sql.Connection;
+import java.time.Month;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
@@ -9,15 +13,14 @@ import utils.DBUtils;
 
 public class AdminOperations implements OperationsInterface {
 
-    private static final int MAX_INTEGER_OPTION = 4;
+    private static final int MAX_INTEGER_OPTION = 3;
     private static final int MIN_INTEGER_OPTION = 1;
     private static final String EXIT = "CANCEL";
 
     // Options 
     private static final int NEGATIVE_BALANCE_OPTION = 1;
     private static final int TRAINER_HOURS_OPTION = 2;
-    private static final int REGISTER_TRAINER_OPTION = 3;
-    private static final int RETURN_TO_MAIN_MENU_OPTION = 4;
+    private static final int RETURN_TO_MAIN_MENU_OPTION = 3;
 
     private Scanner scanner;
 
@@ -64,9 +67,6 @@ public class AdminOperations implements OperationsInterface {
             case TRAINER_HOURS_OPTION:
                 showTrainerWorkingHours();
                 break;
-            case REGISTER_TRAINER_OPTION:
-                openRegisterNewTrainerWizard();
-                break;
             case RETURN_TO_MAIN_MENU_OPTION:
                 break;
         }
@@ -82,22 +82,52 @@ public class AdminOperations implements OperationsInterface {
             System.out.println( "There are zero negative balance accounts" );
             return;
         }
-
-        for ( String name : namesAndNums.keySet() ) {
-            String phoneNum = namesAndNums.get( name );
-            System.out.println( name + " " + phoneNum );
+        List<String> memberName = new ArrayList<>( namesAndNums.keySet() );
+        Collections.sort( memberName );
+        for ( String name : memberName ) {
+            System.out.println( name + " " + namesAndNums.get( name ) );
         }
     }
 
     private void showTrainerWorkingHours() {
         System.out.println( "Trainer's working hours" );
         System.out.println( "-----------------------" );
+        System.out.println( "Enter month to search for ( 1 for January and 12 for December etc. )" );
+        System.out.println();
+        String userInput = null;
+        int month;
+        while ( true ) {
+            userInput = getInputFromUser();
+            if ( exitSignal ) {
+                return;
+            }
 
-    }
+            try {
+                month = Integer.valueOf( userInput );
+            } catch ( NumberFormatException e ) {
+                System.out.println( "Enter 1-12 please" );
+                continue;
+            }
 
-    private void openRegisterNewTrainerWizard() {
-        System.out.println( "New Trainer Wizard ( Type 'Cancel' at anytime to cancel new trainer creation )" );
-        System.out.println( "------------------------------------------------------------------------------" );
+            if ( month < 0 || month > 12 ) {
+                System.out.println( "Enter 1-12 please" );
+                continue;
+            }
+            break;
+        }
+        System.out.println();
+        Map<String, Float> trainerHours = DBUtils.getAllTrainersWorkinghours( month, dbConnection );
+        String monthString = Month.of( month ).toString();
+        if ( trainerHours.isEmpty() ) {
+            System.out.println( "There are no trainers working in " + monthString );
+            return;
+        }
+        System.out.println( "\nTrainer hours for " + monthString );
+        System.out.println( "-----------------" );
+        for ( String trainerName : trainerHours.keySet() ) {
+            float hours = trainerHours.get( trainerName ) / 60;
+            System.out.println( trainerName + " is working " + hours + " hours" );
+        }
     }
 
     private String getInputFromUser() {

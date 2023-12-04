@@ -3,7 +3,6 @@ package operations;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.Timestamp;
-import java.time.temporal.ChronoUnit;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.TimeZone;
@@ -233,7 +232,6 @@ public class MemberOperations implements OperationsInterface {
             }
             break;
         }
-
         float cost = packages.get( userInput );
         cost = -cost;
         makePurchaseOrRecharge( member, (float) cost );
@@ -335,14 +333,20 @@ public class MemberOperations implements OperationsInterface {
         System.out.println( "Schedule for " + member.getFullName() + "\n" );
         Map<Timestamp, Float> schedule = DBUtils.getMemberScheduleForMonth( member, month, dbConnection );
         for ( Timestamp startTime : schedule.keySet() ) {
+            String startAMPM = "AM";
+            String endAMPM = "AM";
             int startHour = startTime.toInstant().atZone( TimeZone.getDefault().toZoneId() ).getHour();
-            float duration = schedule.get( startTime );
-            int endTime = startTime
-                .toInstant()
-                .plus( (long) duration, ChronoUnit.HOURS )
-                .atZone( TimeZone.getDefault().toZoneId() )
-                .getHour();
-            System.out.println( startHour + "-" + endTime );
+            if ( startHour > 12 ) {
+                startHour -= 11;
+                startAMPM = "PM";
+            }
+            float duration = schedule.get( startTime ) / 60;
+            int endHour = (int) ( startHour + duration );
+            if ( endHour > 12 ) {
+                endHour -= 11;
+                endAMPM = "PM";
+            }
+            System.out.println( startHour + startAMPM + " - " + endHour + endAMPM );
         }
 
     }

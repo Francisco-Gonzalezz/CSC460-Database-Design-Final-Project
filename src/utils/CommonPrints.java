@@ -88,8 +88,7 @@ public class CommonPrints {
         System.out.println( "----------------" );
         System.out.println( "1) List members who have a negative balance" );
         System.out.println( "2) List all trainer's working hours" );
-        System.out.println( "3) Register a new trainer" );
-        System.out.println( "4) Return to previous menu" );
+        System.out.println( "3) Return to previous menu" );
     }
 
     /**
