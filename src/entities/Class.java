@@ -1,14 +1,14 @@
 package entities;
 
 import java.sql.Date;
-import java.sql.Time;
+import java.sql.Timestamp;
 
 public class Class {
 
     private int classNum;
     private int courseID;
     private int trainerID;
-    private Time startTime;
+    private Timestamp startTime;
     private float classDuration;
     private Date startDate;
     private Date endDate;
@@ -19,7 +19,7 @@ public class Class {
         int classNum,
         int courseID,
         int trainerID,
-        Time startTime,
+        Timestamp startTime,
         float classDuration,
         Date startDate,
         Date endDate,
@@ -74,11 +74,11 @@ public class Class {
         this.trainerID = trainerID;
     }
 
-    public Time getStartTime() {
+    public Timestamp getStartTime() {
         return startTime;
     }
 
-    public void setStartTime( Time startTime ) {
+    public void setStartTime( java.sql.Timestamp startTime ) {
         this.startTime = startTime;
     }
 

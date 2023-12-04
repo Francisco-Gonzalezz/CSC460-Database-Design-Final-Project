@@ -44,6 +44,10 @@ public class GymMember {
         this.accountBalance = accountBalance;
     }
 
+    public String getFullName() {
+        return firstName + " " + lastName;
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();

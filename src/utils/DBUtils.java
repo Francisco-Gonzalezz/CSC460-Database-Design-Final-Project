@@ -6,8 +6,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.sql.Time;
+import java.sql.Timestamp;
+import java.time.Year;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -245,21 +247,24 @@ public class DBUtils {
                 .executeQuery(
                     "SELECT CLASSNUM FROM " + BODE1 + PERIOD + MEMBER_CLASS_TABLE + " WHERE MEMBERID = " + memberID );
             // Grab all the class numbers and update the enrollment numbers of them
+            Statement updateStatement = dbConnection.createStatement();
             while ( result.next() ) {
                 int classnum = result.getInt( "CLASSNUM" );
                 // Decrement the enrollment numbers
-                int returnCode = stmt
+                updateStatement
                     .executeUpdate(
                         "UPDATE " + BODE1 + PERIOD + CLASS_TABLE + " SET ENROLLMENT = ENROLLMENT - 1 WHERE CLASSNUM = "
                             + classnum );
-                stmt
+                // Remove from member class table
+                updateStatement
                     .executeUpdate(
-                        "DELETE FROM " + BODE1 + PERIOD + MEMBER_CLASS_TABLE + " WHERE MEMBERID = " + memberID
-                            + " AND CLASSNUM = " + classnum );
+                        "DELETE FROM " + BODE1 + PERIOD + MEMBER_CLASS_TABLE + " WHERE MEMBERID = " + memberID );
             }
+            updateStatement.close();
             stmt.close();
         } catch ( SQLException e ) {
             System.out.println( "Unable to remove member from their classes" );
+            System.out.println( e.getMessage() );
         }
     }
 
@@ -366,6 +371,7 @@ public class DBUtils {
             PreparedStatement preparedStatement = dbConnection
                 .prepareStatement(
                     "SELECT COURSEID FROM " + BODE1 + PERIOD + COURSE_PACKAGE_TABLE + " WHERE PACKAGENAME = ?" );
+            preparedStatement.setString( 1, packageName );
             ResultSet courseIDs = preparedStatement.executeQuery();
             while ( courseIDs.next() ) {
                 int courseID = courseIDs.getInt( "COURSEID" );
@@ -384,6 +390,7 @@ public class DBUtils {
             preparedStatement.close();
         } catch ( SQLException e ) {
             System.out.println( "Unable to add member to all courses necessary" );
+            System.out.println( e.getMessage() );
         }
     }
 
@@ -396,6 +403,7 @@ public class DBUtils {
             stmt.executeUpdate();
         } catch ( SQLException e ) {
             System.out.println( "Unable to update memberclass table" );
+            System.out.println( e.getMessage() );
         }
     }
 
@@ -405,31 +413,32 @@ public class DBUtils {
             stmt.setInt( 1, gymClass.getClassNum() );
             stmt.setInt( 2, gymClass.getCourseID() );
             stmt.setInt( 3, gymClass.getTrainerID() );
-            stmt.setDate( 4, new Date( gymClass.getStartTime().getTime() ) );
+            stmt.setTimestamp( 4, gymClass.getStartTime() );
             stmt.setFloat( 5, gymClass.getClassDuration() );
             stmt.setDate( 6, gymClass.getStartDate() );
             stmt.setDate( 7, gymClass.getEndDate() );
             stmt.setInt( 8, gymClass.getCurrentEnrollment() );
             stmt.setInt( 9, gymClass.getCapacity() );
+            stmt.setInt( 10, gymClass.getClassNum() );
             stmt.executeUpdate();
             stmt.close();
         } catch ( SQLException e ) {
-            System.out.println( "Unable to save" );
+            System.out.println( "Unable to save class info" );
         }
     }
 
     private static String generateSaveClassQuery() {
         StringBuilder sqlBuilder = new StringBuilder( "UPDATE " + BODE1 + PERIOD + CLASS_TABLE + " SET \n" );
-        sqlBuilder.append( "CLASSNUM = ?,\n" );
-        sqlBuilder.append( "COURSEID = ?,\n" );
-        sqlBuilder.append( "TRAINERID = ?,\n" );
-        sqlBuilder.append( "STARTTIME = ?,\n" );
-        sqlBuilder.append( "DURATION = ?,\n" );
-        sqlBuilder.append( "STARTDATE = ?,\n" );
-        sqlBuilder.append( "ENDDATE = ?,\n" );
-        sqlBuilder.append( "ENROLLMENT = ?,\n" );
-        sqlBuilder.append( "CAPACITY = ?" );
-        sqlBuilder.append( ")" );
+        sqlBuilder.append( "CLASSNUM = ?, " );
+        sqlBuilder.append( "COURSEID = ?, " );
+        sqlBuilder.append( "TRAINERID = ?, " );
+        sqlBuilder.append( "STARTTIME = ?, " );
+        sqlBuilder.append( "DURATION = ?, " );
+        sqlBuilder.append( "STARTDATE = ?, " );
+        sqlBuilder.append( "ENDDATE = ?, " );
+        sqlBuilder.append( "ENROLLMENT = ?, " );
+        sqlBuilder.append( "CAPACITY = ? " );
+        sqlBuilder.append( "WHERE CLASSNUM = ?" );
         return sqlBuilder.toString();
     }
 
@@ -440,7 +449,7 @@ public class DBUtils {
             int classNum;
             int courseID;
             int trainerID;
-            Date startTime;
+            Timestamp startTime;
             float classDuration;
             Date startDate;
             Date endDate;
@@ -450,7 +459,7 @@ public class DBUtils {
                 classNum = classes.getInt( "CLASSNUM" );
                 courseID = classes.getInt( "COURSEID" );
                 trainerID = classes.getInt( "TRAINERID" );
-                startTime = classes.getDate( "STARTTIME" );
+                startTime = classes.getTimestamp( "STARTTIME" );
                 classDuration = classes.getFloat( "DURATION" );
                 startDate = classes.getDate( "STARTDATE" );
                 endDate = classes.getDate( "ENDDATE" );
@@ -460,7 +469,7 @@ public class DBUtils {
                     classNum,
                     courseID,
                     trainerID,
-                    new Time( startTime.getTime() ),
+                    startTime,
                     classDuration,
                     startDate,
                     endDate,
@@ -473,6 +482,101 @@ public class DBUtils {
         }
 
         return classList;
+    }
+
+    public static float getAmountMemberSpent( GymMember member, Connection dbConnection ) {
+        Float amount = null;
+        try {
+            PreparedStatement stmt = dbConnection
+                .prepareStatement(
+                    "SELECT SUM(AMOUNT) FROM " + BODE1 + PERIOD + TRANSACTION_TABLE
+                        + " WHERE MEMBERID = ? AND XACTTYPE = ?" );
+            stmt.setInt( 1, member.getMemberID() );
+            stmt.setString( 2, "PURCHASE" );
+            ResultSet result = stmt.executeQuery();
+            if ( result.next() ) {
+                amount = result.getFloat( "SUM(AMOUNT)" );
+            }
+            stmt.close();
+        } catch ( SQLException e ) {
+            System.out.println( "Unable to determine how much member has spent" );
+        }
+        return amount;
+    }
+
+    public static Map<String, String> getNegativeAccountUsers( Connection dbConnection ) {
+        Map<String, String> namesAndNums = new HashMap<>();
+        try {
+            PreparedStatement stmt = dbConnection
+                .prepareStatement(
+                    "SELECT FNAME, LNAME, PHONENUM FROM " + BODE1 + PERIOD + MEMBER_TABLE
+                        + " WHERE ACCOUNTBALANCE < 0" );
+            ResultSet result = stmt.executeQuery();
+            while ( result.next() ) {
+                String firstName = result.getString( "FNAME" );
+                String lastName = result.getString( "LNAME" );
+                String fullName = firstName + " " + lastName;
+                String phoneNum = result.getString( "PHONENUM" );
+                namesAndNums.put( fullName, phoneNum );
+            }
+            stmt.close();
+        } catch ( SQLException e ) {
+            System.out.println( "Unable to retrieve negative balance accounts" );
+        }
+        return namesAndNums;
+    }
+
+    public static
+        Map<Timestamp, Float>
+        getMemberScheduleForMonth( GymMember member, int month, Connection dbConnection ) {
+
+        // TODO: Throwing an exception here need to figure out why
+
+        Map<Timestamp, Float> startToEnd = new HashMap<>();
+        Calendar maxCalendar = Calendar.getInstance();
+        maxCalendar.clear();
+        maxCalendar.set( Calendar.MONTH, month );
+        maxCalendar.set( Calendar.YEAR, Year.now().getValue() );
+        maxCalendar.set( Calendar.DAY_OF_MONTH, maxCalendar.getActualMaximum( Calendar.DAY_OF_MONTH ) );
+        Calendar minCalendar = Calendar.getInstance();
+        minCalendar.clear();
+        minCalendar.set( Calendar.MONTH, month );
+        minCalendar.set( Calendar.YEAR, Year.now().getValue() );
+        minCalendar.set( Calendar.DAY_OF_MONTH, minCalendar.getActualMinimum( Calendar.DAY_OF_MONTH ) );
+        Date maxDate = new Date( maxCalendar.getTime().getTime() );
+        Date minDate = new Date( minCalendar.getTime().getTime() );
+        try {
+            PreparedStatement memberClassStmt = dbConnection
+                .prepareStatement(
+                    "SELECT CLASSNUM FROM " + BODE1 + PERIOD + MEMBER_CLASS_TABLE + " WHERE MEMBERID = ?" );
+            memberClassStmt.setInt( 1, member.getMemberID() );
+            ResultSet classNumsForMember = memberClassStmt.executeQuery();
+            while ( classNumsForMember.next() ) {
+                int classNum = classNumsForMember.getInt( "CLASSNUM" );
+                PreparedStatement classInfo = dbConnection
+                    .prepareStatement(
+                        "SELECT STARTTIME, DURATION  FROM " + BODE1 + PERIOD + CLASS_TABLE + " WHERE CLASSNUM = ?" );
+                classInfo.setInt( 1, classNum );
+                ResultSet infoResult = classInfo.executeQuery();
+                Timestamp startTime;
+                float duration;
+                while ( infoResult.next() ) {
+                    Date endDate = infoResult.getDate( "ENDDATE" );
+                    if ( endDate.after( minDate ) && endDate.before( maxDate ) ) {
+                        startTime = infoResult.getTimestamp( "STARTTIME" );
+                        duration = infoResult.getFloat( "DURATION" );
+                        startToEnd.put( startTime, duration );
+                    }
+                }
+                classInfo.close();
+            }
+            memberClassStmt.close();
+        } catch ( SQLException e ) {
+            System.out.println( "Unable to retrieve member schedule" );
+            System.out.println( e.getMessage() );
+        }
+
+        return startToEnd;
     }
 
 }

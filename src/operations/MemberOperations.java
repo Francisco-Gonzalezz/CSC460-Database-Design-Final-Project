@@ -2,8 +2,11 @@ package operations;
 
 import java.sql.Connection;
 import java.sql.Date;
+import java.sql.Timestamp;
+import java.time.temporal.ChronoUnit;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.TimeZone;
 
 import entities.GymMember;
 import entities.Transaction;
@@ -221,6 +224,7 @@ public class MemberOperations implements OperationsInterface {
             System.out.println( packageName + "  $" + cost );
         }
         String userInput = null;
+        System.out.println();
         while ( true ) {
             userInput = scanner.nextLine();
             if ( !packages.containsKey( userInput ) ) {
@@ -235,7 +239,6 @@ public class MemberOperations implements OperationsInterface {
         makePurchaseOrRecharge( member, (float) cost );
         DBUtils.saveChangesToMember( member, dbConnection ); // Save changes made to the member object
 
-        // TODO: Go through clasess in course and add user to them
         DBUtils.addMemberToPackageCourses( member, userInput, dbConnection );
     }
 
@@ -254,7 +257,6 @@ public class MemberOperations implements OperationsInterface {
                 System.out.println( "Invalid member id. Verify that id was typed in correctly" );
             }
         }
-        System.out.println( member.toString() );
 
         // Check user for negative balance
         if ( member.getBalance() < 0 ) {
@@ -279,9 +281,70 @@ public class MemberOperations implements OperationsInterface {
     }
 
     private void openMemberClassScheduleSearch() {
-        long memberID = getMemberIDFromUser();
+        System.out.println( "Member Schedule Search Wizard ( Type 'Cancel' to exit wizard )" );
+        System.out.println( "--------------------------------------------------------------" );
+        int memberID;
+        String userInput;
 
-        // TODO: implement 
+        // Get member object from db
+        GymMember member = null;
+        while ( member == null ) {
+            System.out.println( "Enter member ID" );
+            userInput = readInputFromUser();
+            if ( exitSignal ) {
+                return;
+            }
+            try {
+                memberID = Integer.valueOf( userInput );
+            } catch ( NumberFormatException e ) {
+                System.out.println( "ID must be a numeric value" );
+                continue;
+            }
+
+            member = DBUtils.retrieveMemberFromID( memberID, dbConnection );
+            if ( member == null ) {
+                System.out.println( "Invalid ID please enter again" );
+                continue;
+            }
+            break;
+        }
+
+        System.out.println( "Enter month to search for ( 1 for January and 12 for December etc. )" );
+        userInput = null;
+        int month;
+        while ( true ) {
+            userInput = readInputFromUser();
+            if ( exitSignal ) {
+                return;
+            }
+
+            try {
+                month = Integer.valueOf( userInput );
+            } catch ( NumberFormatException e ) {
+                System.out.println( "Enter 1-12 please" );
+                continue;
+            }
+
+            if ( month < 0 || month > 12 ) {
+                System.out.println( "Enter 1-12 please" );
+                continue;
+            }
+            break;
+        }
+
+        System.out.println( "Schedule for " + member.getFullName() + "\n" );
+        Map<Timestamp, Float> schedule = DBUtils.getMemberScheduleForMonth( member, month, dbConnection );
+        for ( Timestamp startTime : schedule.keySet() ) {
+            int startHour = startTime.toInstant().atZone( TimeZone.getDefault().toZoneId() ).getHour();
+            float duration = schedule.get( startTime );
+            int endTime = startTime
+                .toInstant()
+                .plus( (long) duration, ChronoUnit.HOURS )
+                .atZone( TimeZone.getDefault().toZoneId() )
+                .getHour();
+            System.out.println( startHour + "-" + endTime );
+        }
+
     }
 
     // Functions to grab input from user

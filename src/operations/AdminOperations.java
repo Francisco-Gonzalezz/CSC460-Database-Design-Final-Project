@@ -1,9 +1,11 @@
 package operations;
 
 import java.sql.Connection;
+import java.util.Map;
 import java.util.Scanner;
 
 import utils.CommonPrints;
+import utils.DBUtils;
 
 public class AdminOperations implements OperationsInterface {
 
@@ -75,11 +77,22 @@ public class AdminOperations implements OperationsInterface {
     private void listNegativeBalanceMembers() {
         System.out.println( "Members with negative balances" );
         System.out.println( "------------------------------" );
+        Map<String, String> namesAndNums = DBUtils.getNegativeAccountUsers( dbConnection );
+        if ( namesAndNums.isEmpty() ) {
+            System.out.println( "There are zero negative balance accounts" );
+            return;
+        }
+
+        for ( String name : namesAndNums.keySet() ) {
+            String phoneNum = namesAndNums.get( name );
+            System.out.println( name + " " + phoneNum );
+        }
     }
 
     private void showTrainerWorkingHours() {
         System.out.println( "Trainer's working hours" );
         System.out.println( "-----------------------" );
+
     }
 
     private void openRegisterNewTrainerWizard() {
