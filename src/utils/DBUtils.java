@@ -2,10 +2,13 @@ package utils;
 
 import java.sql.Connection;
 import java.sql.Date;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import entities.Class;
@@ -270,15 +273,15 @@ public class DBUtils {
     }
 
     private static String generateMemberUpdate( GymMember member ) {
-        StringBuilder sqlBuilder = new StringBuilder( "UPDATE " + BODE1 + PERIOD + MEMBER_TABLE + ",\n" );
-        sqlBuilder.append( "SET FNAME = '" + member.getFirstName() + "',\n" );
-        sqlBuilder.append( "SET LNAME = '" + member.getLastName() + "',\n" );
-        sqlBuilder.append( "SET PHONENUM = '" + member.getPhoneNumber() + "',\n" );
-        sqlBuilder.append( "SET EMAIL = '" + member.getEmail() + "',\n" );
-        sqlBuilder.append( "SET MEMBERSHIPLEVEL = '" + member.getMembershipLevel() + "',\n" );
-        sqlBuilder.append( "SET ACCOUNTBALANCE = " + member.getBalance() + "\n" );
+        StringBuilder sqlBuilder = new StringBuilder( "UPDATE " + BODE1 + PERIOD + MEMBER_TABLE + " SET\n" );
+        sqlBuilder.append( "MEMBERID = " + member.getMemberID() + ",\n" );
+        sqlBuilder.append( "FNAME = '" + member.getFirstName() + "',\n" );
+        sqlBuilder.append( "LNAME = '" + member.getLastName() + "',\n" );
+        sqlBuilder.append( "PHONENUM = '" + member.getPhoneNumber() + "',\n" );
+        sqlBuilder.append( "EMAIL = '" + member.getEmail() + "',\n" );
+        sqlBuilder.append( "MEMBERSHIPLEVEL = '" + member.getMembershipLevel() + "',\n" );
+        sqlBuilder.append( "ACCOUNTBALANCE = " + member.getBalance() + "\n" );
         sqlBuilder.append( "WHERE MEMBERID = " + member.getMemberID() );
-
         return sqlBuilder.toString();
     }
 
@@ -300,6 +303,7 @@ public class DBUtils {
             Statement stmt = dbConnection.createStatement();
             ResultSet result = stmt
                 .executeQuery( "SELECT " + SEQUENCE + PERIOD + "NEXTVAL FROM " + BODE1 + PERIOD + MEMBER_TABLE );
+            result.next();
             generatedID = result.getInt( "NEXTVAL" );
             stmt.close();
         } catch ( SQLException e ) {
@@ -320,11 +324,11 @@ public class DBUtils {
 
     private static String generateInsertTransaction( Transaction transaction ) {
         StringBuilder sqlBuilder = new StringBuilder(
-            "INSERT INTO " + BODE1 + PERIOD + TRANSACTION_TABLE + " VALUES (" );
+            "INSERT INTO " + BODE1 + PERIOD + TRANSACTION_TABLE + " VALUES (\n" );
         sqlBuilder.append( transaction.getTransactionID() + ",\n" );
         sqlBuilder.append( transaction.getMemberID() + ",\n" );
         sqlBuilder.append( "'" + transaction.getXactType() + "',\n" );
-        sqlBuilder.append( transaction.getXactDate() + ",\n" );
+        sqlBuilder.append( "SYSDATE,\n" );
         sqlBuilder.append( transaction.getAmount() );
         sqlBuilder.append( ")" );
         return sqlBuilder.toString();
@@ -353,6 +357,52 @@ public class DBUtils {
         sqlBuilder.append( newClass.getCapacity() );
         sqlBuilder.append( ")" );
         return sqlBuilder.toString();
+    }
+
+    public static void addMemberToPackageCourses( GymMember member, String packageName, Connection dbConnection ) {
+        try {
+            // Grab all the courses that are in the package the member bought
+            PreparedStatement preparedStatement = dbConnection
+                .prepareStatement(
+                    "SELECT COURSEID FROM " + BODE1 + PERIOD + COURSE_PACKAGE_TABLE + " WHERE PACKAGENAME = ?" );
+            ResultSet courseIDs = preparedStatement.executeQuery();
+            while ( courseIDs.next() ) {
+                int courseID = courseIDs.getInt( "COURSEID" );
+                PreparedStatement getClasses = dbConnection
+                    .prepareStatement( "SELECT * FROM " + BODE1 + PERIOD + CLASS_TABLE + " WHERE COURSEID = ?" );
+                getClasses.setInt( 1, courseID );
+                ResultSet classes = getClasses.executeQuery(); // This contains the classes that the member should be enrolled in
+
+                getClasses.close();
+            }
+            preparedStatement.close();
+        } catch ( SQLException e ) {
+            System.out.println( "Unable to add member to all courses necessary" );
+        }
+
+    }
+
+    private List<Class> formClassList( ResultSet classes ) {
+        List<Class> classList = new ArrayList<>();
+
+        try {
+            int classNum;
+            int courseID;
+            int trainerID;
+            Date startTime;
+            float classDuration;
+            Date startDate;
+            Date endDate;
+            int currentEnrollment;
+            int capacity;
+            while ( classes.next() ) {
+
+            }
+        } catch ( SQLException e ) {
+            System.out.println( "Unable to create list of classes" );
+        }
+
+        return classList;
     }
 
 }

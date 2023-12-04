@@ -215,9 +215,10 @@ public class MemberOperations implements OperationsInterface {
             System.err.println( "Unable to find any packages. Cancelling purchase." );
             return;
         }
+        // Print out the options
         for ( String packageName : packages.keySet() ) {
             float cost = packages.get( packageName );
-            System.out.println( packageName + "\t$" + cost );
+            System.out.println( packageName + "  $" + cost );
         }
         String userInput = null;
         while ( true ) {
@@ -232,8 +233,9 @@ public class MemberOperations implements OperationsInterface {
         float cost = packages.get( userInput );
         cost = -cost;
         makePurchaseOrRecharge( member, (float) cost );
-
         DBUtils.saveChangesToMember( member, dbConnection ); // Save changes made to the member object
+
+        // TODO: Go through clasess in course and add user to them
     }
 
     private void openRemoveMemberWizard() {
