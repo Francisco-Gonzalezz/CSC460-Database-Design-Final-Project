@@ -236,6 +236,7 @@ public class MemberOperations implements OperationsInterface {
         DBUtils.saveChangesToMember( member, dbConnection ); // Save changes made to the member object
 
         // TODO: Go through clasess in course and add user to them
+        DBUtils.addMemberToPackageCourses( member, userInput, dbConnection );
     }
 
     private void openRemoveMemberWizard() {

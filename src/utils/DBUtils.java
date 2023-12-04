@@ -6,6 +6,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Time;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -371,18 +372,68 @@ public class DBUtils {
                 PreparedStatement getClasses = dbConnection
                     .prepareStatement( "SELECT * FROM " + BODE1 + PERIOD + CLASS_TABLE + " WHERE COURSEID = ?" );
                 getClasses.setInt( 1, courseID );
-                ResultSet classes = getClasses.executeQuery(); // This contains the classes that the member should be enrolled in
-
+                ResultSet classSet = getClasses.executeQuery(); // This contains the classes that the member should be enrolled in
+                List<Class> classes = formClassList( classSet );
+                for ( Class gymClass : classes ) {
+                    gymClass.addStudent(); // Update enrollment
+                    saveClassInfo( gymClass, dbConnection ); // save changes
+                    addToMemberClassTable( member, gymClass, dbConnection ); // Add record to memberclass table
+                }
                 getClasses.close();
             }
             preparedStatement.close();
         } catch ( SQLException e ) {
             System.out.println( "Unable to add member to all courses necessary" );
         }
-
     }
 
-    private List<Class> formClassList( ResultSet classes ) {
+    public static void addToMemberClassTable( GymMember member, Class gymClass, Connection dbConnection ) {
+        try {
+            PreparedStatement stmt = dbConnection
+                .prepareStatement( "INSERT INTO " + BODE1 + PERIOD + MEMBER_CLASS_TABLE + " VALUES (?, ?)" );
+            stmt.setInt( 1, member.getMemberID() );
+            stmt.setInt( 2, gymClass.getClassNum() );
+            stmt.executeUpdate();
+        } catch ( SQLException e ) {
+            System.out.println( "Unable to update memberclass table" );
+        }
+    }
+
+    public static void saveClassInfo( Class gymClass, Connection dbConnection ) {
+        try {
+            PreparedStatement stmt = dbConnection.prepareStatement( generateSaveClassQuery() );
+            stmt.setInt( 1, gymClass.getClassNum() );
+            stmt.setInt( 2, gymClass.getCourseID() );
+            stmt.setInt( 3, gymClass.getTrainerID() );
+            stmt.setDate( 4, new Date( gymClass.getStartTime().getTime() ) );
+            stmt.setFloat( 5, gymClass.getClassDuration() );
+            stmt.setDate( 6, gymClass.getStartDate() );
+            stmt.setDate( 7, gymClass.getEndDate() );
+            stmt.setInt( 8, gymClass.getCurrentEnrollment() );
+            stmt.setInt( 9, gymClass.getCapacity() );
+            stmt.executeUpdate();
+            stmt.close();
+        } catch ( SQLException e ) {
+            System.out.println( "Unable to save" );
+        }
+    }
+
+    private static String generateSaveClassQuery() {
+        StringBuilder sqlBuilder = new StringBuilder( "UPDATE " + BODE1 + PERIOD + CLASS_TABLE + " SET \n" );
+        sqlBuilder.append( "CLASSNUM = ?,\n" );
+        sqlBuilder.append( "COURSEID = ?,\n" );
+        sqlBuilder.append( "TRAINERID = ?,\n" );
+        sqlBuilder.append( "STARTTIME = ?,\n" );
+        sqlBuilder.append( "DURATION = ?,\n" );
+        sqlBuilder.append( "STARTDATE = ?,\n" );
+        sqlBuilder.append( "ENDDATE = ?,\n" );
+        sqlBuilder.append( "ENROLLMENT = ?,\n" );
+        sqlBuilder.append( "CAPACITY = ?" );
+        sqlBuilder.append( ")" );
+        return sqlBuilder.toString();
+    }
+
+    private static List<Class> formClassList( ResultSet classes ) {
         List<Class> classList = new ArrayList<>();
 
         try {
@@ -396,7 +447,26 @@ public class DBUtils {
             int currentEnrollment;
             int capacity;
             while ( classes.next() ) {
-
+                classNum = classes.getInt( "CLASSNUM" );
+                courseID = classes.getInt( "COURSEID" );
+                trainerID = classes.getInt( "TRAINERID" );
+                startTime = classes.getDate( "STARTTIME" );
+                classDuration = classes.getFloat( "DURATION" );
+                startDate = classes.getDate( "STARTDATE" );
+                endDate = classes.getDate( "ENDDATE" );
+                currentEnrollment = classes.getInt( "ENROLLMENT" );
+                capacity = classes.getInt( "CAPACITY" );
+                Class toAdd = new Class(
+                    classNum,
+                    courseID,
+                    trainerID,
+                    new Time( startTime.getTime() ),
+                    classDuration,
+                    startDate,
+                    endDate,
+                    currentEnrollment,
+                    capacity );
+                classList.add( toAdd );
             }
         } catch ( SQLException e ) {
             System.out.println( "Unable to create list of classes" );
