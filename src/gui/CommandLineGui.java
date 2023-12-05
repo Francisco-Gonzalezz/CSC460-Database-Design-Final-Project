@@ -1,5 +1,19 @@
 package gui;
 
+/*
+ * Class name: CommandLineGui
+ * Author: Frankie Gonzalez
+ * Utilizes java.sql, java.util
+ * Purpose: This class describes the user interface model used in the program,
+ *  including the menu selection and displaying the user interface upon running
+ *  the program.
+ * Constructor: CommandLineGui(Connection dbConnection) takes the connection to
+ *  Oracle as input and constructs the Scanner object for user input, also
+ *  setting up the Exit thread to clean up the program upon exit.
+ * Public methods: startGui() - called when the program is run and the connection
+ *  to the database is established, sets up the user interface
+ */
+
 import java.sql.Connection;
 import java.util.Scanner;
 
@@ -61,6 +75,7 @@ public class CommandLineGui {
         CommonPrints.printWelcomeMessage();
         System.out.println( "\n" );
 
+	// continually prompts for user input until program is exited
         while ( true ) {
             CommonPrints.promptUserToSelectTypeOfOperation();
             CommonPrints.printStandardOptions();
@@ -94,7 +109,8 @@ public class CommandLineGui {
 
     /**
      * Directs control flow to whatever operations menu should be open
-     * @param option
+     * @param option - integer value for which menu should be opened
+     *  from the start menu
      */
     private void openOperationsMenu( int option ) {
         switch ( option ) {
