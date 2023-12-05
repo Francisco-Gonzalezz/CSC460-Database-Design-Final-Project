@@ -1,3 +1,17 @@
+/*
+ * Class name: Course
+ * Jake Bode, Frankie Gonzalez
+ * Utilizes no outside packages
+ * Purpose: This class holds the data collected from the Course table
+ *  within the database. It represents a specific course that can be
+ *  taught in the gym, using instances of Classes, as an entity.
+ * Constructor: Course(...) takes in all of the attributes from a single
+ *  tuple in the Course relation and sets all of the values to the
+ *  corresponding variables in this class.
+ * Public getters and setters for every attribute from the tuples are
+ *  defined in this class.
+ */
+
 package entities;
 
 public class Course {
@@ -8,12 +22,18 @@ public class Course {
 
     private int catalogNum;
 
+    // Constructor
     public Course( int courseID, String category, int catalogNum ) {
         this.courseID = courseID;
         this.category = category;
         this.catalogNum = catalogNum;
     }
 
+    /*
+     * This method returns the value of the catalog number "1", "2", etc.
+     * as a string version, padded with leading zeroes, to meet a length
+     * of three ("001", "002").
+     */
     public String padCatalogNum() {
         String catNum = String.valueOf( catalogNum );
         String padding = "";
