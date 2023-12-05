@@ -14,6 +14,11 @@ public class RentalItem {
         this.quantityInStock = quantityInStock;
     }
 
+    @Override
+    public String toString() {
+        return itemName + " " + quantityInStock;
+    }
+
     // Getters and setters
 
     public int getItemNum() {

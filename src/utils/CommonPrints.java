@@ -75,9 +75,8 @@ public class CommonPrints {
         System.out.println( "-----------------" );
         System.out.println( "1) Rent out an item" );
         System.out.println( "2) Return an item" );
-        System.out.println( "3) Check rental status for member" );
-        System.out.println( "4) Check quantity of items" );
-        System.out.println( "5) Return to previous menu" );
+        System.out.println( "3) Check quantity of items" );
+        System.out.println( "4) Return to previous menu" );
     }
 
     /**

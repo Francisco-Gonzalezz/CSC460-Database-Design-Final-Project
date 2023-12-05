@@ -263,13 +263,7 @@ public class MemberOperations implements OperationsInterface {
             return;
         }
 
-        // Update rental items
-        Map<String, Integer> unreturnedRentalsOfMember = DBUtils
-            .getCheckoutRentalsForMember( member.getMemberID(), dbConnection );
-        for ( String rental : unreturnedRentalsOfMember.keySet() ) {
-            int quantityToSubtract = unreturnedRentalsOfMember.get( rental );
-            DBUtils.removeQuantityFromRentalItems( rental, quantityToSubtract, dbConnection );
-        }
+        // Update rental items ( No need since qty is going to be perma gone and already accounted for)
 
         // Update class tables where this member was a part of
         DBUtils.removeMemberFromAllTheirClasses( member.getMemberID(), dbConnection );

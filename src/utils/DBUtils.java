@@ -7,6 +7,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
+import java.sql.Types;
 import java.time.Year;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -16,6 +17,8 @@ import java.util.Map;
 
 import entities.Class;
 import entities.GymMember;
+import entities.RentalItem;
+import entities.RentalLogEntry;
 import entities.Trainer;
 import entities.Transaction;
 import enums.MembershipLevelEnum;
@@ -176,27 +179,52 @@ public class DBUtils {
      * @param dbConnection Connection to DB
      * @return Map<String,Integer> Containing rental names and the quantity borrowed from member
      */
-    public static Map<String, Integer> getCheckoutRentalsForMember( int memberID, Connection dbConnection ) {
+    public static Map<String, Integer> getCheckoutRentalsForMember( GymMember member, Connection dbConnection ) {
         Map<String, Integer> rentals = new HashMap<>();
         try {
-            Statement stmt = dbConnection.createStatement();
-            ResultSet result = stmt.executeQuery( generateCheckoutRentalSQL( memberID ) );
-            while ( result.next() ) {
-                String itemName = result.getString( RENTAL_ITEM_TABLE + PERIOD + "ITEMNAME" );
-                int quantityBorrowed = result.getInt( RENTAL_LOG_TABLE + PERIOD + "QUANTITY" );
-                // Add up all quantities of the same type of item
+            PreparedStatement getLogInfo = dbConnection
+                .prepareStatement(
+                    "SELECT ITEMNUM, QUANTITY FROM " + BODE1 + PERIOD + RENTAL_LOG_TABLE + " WHERE MEMBERID = ?" );
+            getLogInfo.setInt( 1, member.getMemberID() );
+            PreparedStatement getItemName = dbConnection
+                .prepareStatement(
+                    "SELECT ITEMNAME FROM " + BODE1 + PERIOD + RENTAL_ITEM_TABLE + " WHERE ITEMNUM = ?" );
+            ResultSet logInfo = getLogInfo.executeQuery();
+            while ( logInfo.next() ) {
+                int itemNum = logInfo.getInt( "ITEMNUM" );
+                int quantityBorrowed = logInfo.getInt( "QUANTITY" );
+                String itemName = getItemName( itemNum, dbConnection );
                 if ( rentals.containsKey( itemName ) ) {
-                    rentals.put( itemName, rentals.get( itemName ) + quantityBorrowed );
+                    int stored = rentals.get( itemName );
+                    stored += quantityBorrowed;
+                    rentals.put( itemName, stored );
                 } else {
                     rentals.put( itemName, quantityBorrowed );
                 }
             }
-            stmt.close();
+            getLogInfo.close();
+            getItemName.close();
         } catch ( SQLException e ) {
-            System.out.println( "Unable to find all rentals" );
-            return null;
+            System.out.println( "Unable to retrieve member's rental items" );
         }
         return rentals;
+    }
+
+    private static String getItemName( int itemNum, Connection dbConnection ) {
+        String name = "";
+        try {
+            PreparedStatement stmt = dbConnection
+                .prepareStatement(
+                    "SELECT ITEMNAME FROM " + BODE1 + PERIOD + RENTAL_ITEM_TABLE + " WHERE ITEMNUM = ?" );
+            stmt.setInt( 1, itemNum );
+            ResultSet result = stmt.executeQuery();
+            result.next();
+            name = result.getString( "ITEMNAME" );
+        } catch ( SQLException e ) {
+            System.out.println( "Unable to find item name" );
+        }
+
+        return name;
     }
 
     /**
@@ -604,6 +632,7 @@ public class DBUtils {
                 }
                 trainerHours.put( trainer.getFullName(), hours );
             }
+            stmt.close();
         } catch ( SQLException e ) {
             System.out.println( "Unable to retrieve all trainers working hours" );
         }
@@ -632,11 +661,92 @@ public class DBUtils {
         return trainers;
     }
 
-    private String generateGetTrainerHoursQuery() {
-        StringBuilder sqlBuilder = new StringBuilder(
-            "SELECT BODE1.TRAINER.TRAINERID, BODE1.CLASS.TRAINERID, BODE1.CLASS.DURATION FROM BODE1.TRAINER INNER JOIN BODE1.CLASS ON BODE1.TRAINER.TRAINERID = BODE1.CLASS.TRAINERID" );
+    public static Map<String, Integer> getRentalItemsAndQuantities( Connection dbConnection ) {
+        Map<String, Integer> itemAndQunatity = new HashMap<>();
 
+        try {
+            Statement stmt = dbConnection.createStatement();
+            ResultSet rentalInfo = stmt.executeQuery( "SELECT * FROM " + BODE1 + PERIOD + RENTAL_ITEM_TABLE );
+            while ( rentalInfo.next() ) {
+                itemAndQunatity.put( rentalInfo.getString( "ITEMNAME" ), rentalInfo.getInt( "QTYINSTOCK" ) );
+            }
+            stmt.close();
+        } catch ( SQLException e ) {
+            System.out.println( "Unable to retrieve all rental items and their qunatites" );
+        }
+
+        return itemAndQunatity;
+    }
+
+    public static List<RentalItem> getRentalItems( Connection dbConnection ) {
+        List<RentalItem> items = new ArrayList<>();
+        try {
+            ResultSet itemInfo = dbConnection
+                .prepareStatement( "SELECT * FROM " + BODE1 + PERIOD + RENTAL_ITEM_TABLE )
+                .executeQuery();
+            while ( itemInfo.next() ) {
+                int itemNum = itemInfo.getInt( "ITEMNUM" );
+                String itemName = itemInfo.getString( "ITEMNAME" );
+                int qtyInStock = itemInfo.getInt( "QTYINSTOCK" );
+                RentalItem item = new RentalItem( itemNum, itemName, qtyInStock );
+                items.add( item );
+            }
+            itemInfo.close();
+        } catch ( SQLException e ) {
+            System.out.println( "Unable to get all items" );
+        }
+        return items;
+    }
+
+    public static void saveNewRentalLogEntry( RentalLogEntry entry, Connection dbConnection ) {
+        try {
+            PreparedStatement stmt = dbConnection
+                .prepareStatement( "INSERT INTO " + BODE1 + PERIOD + RENTAL_LOG_TABLE + " VALUES (?, ?, ?, ?, ?, ?)" );
+            stmt.setInt( 1, entry.getRentalID() );
+            stmt.setInt( 2, entry.getMemberID() );
+            stmt.setInt( 3, entry.getItemNum() );
+            stmt.setDate( 4, entry.getOutTime() );
+            stmt.setNull( 5, Types.NULL );
+            stmt.setInt( 6, entry.getQuantityBorrowed() );
+            stmt.executeUpdate();
+            stmt.close();
+        } catch ( SQLException e ) {
+            System.out.println( "Unable to save new rental log entry" );
+        }
+    }
+
+    public static void saveChangesToRentalItem( RentalItem item, Connection dbConnection ) {
+        try {
+            PreparedStatement stmt = dbConnection.prepareStatement( generateSaveRentalItemQuery() );
+            stmt.setInt( 1, item.getQuantityInStock() );
+            stmt.setInt( 2, item.getItemNum() );
+            stmt.executeUpdate();
+            stmt.close();
+        } catch ( SQLException e ) {
+            System.out.println( "Unable to update item: " + item.getItemName() );
+        }
+    }
+
+    private static String generateSaveRentalItemQuery() {
+        StringBuilder sqlBuilder = new StringBuilder( "UPDATE " + BODE1 + PERIOD + RENTAL_ITEM_TABLE + " SET \n" );
+        sqlBuilder.append( "QTYINSTOCK = ?\n" );
+        sqlBuilder.append( "WHERE ITEMNUM = ?" );
         return sqlBuilder.toString();
+    }
+
+    public static void returnItems( String itemName, int qunatity, Connection dbConnection ) {
+        try {
+            PreparedStatement stmt = dbConnection
+                .prepareStatement(
+                    "UPDATE " + BODE1 + PERIOD + RENTAL_ITEM_TABLE
+                        + " SET QTYINSTOCK = QTYINSTOCK + ? WHERE ITEMNAME = ?" );
+            stmt.setInt( 1, qunatity );
+            stmt.setString( 2, itemName );
+            stmt.executeUpdate();
+            stmt.close();
+        } catch ( SQLException e ) {
+            System.out.println( "Unable to return item" );
+        }
     }
 
 }
