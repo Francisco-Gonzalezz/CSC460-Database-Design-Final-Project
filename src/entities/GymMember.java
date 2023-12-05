@@ -48,6 +48,26 @@ public class GymMember {
         return firstName + " " + lastName;
     }
 
+    public double getDiscount() {
+        if ( membershipLevel.equals( MembershipLevelEnum.DIAMOND ) ) {
+            return 0.3;
+        } else if ( membershipLevel.equals( MembershipLevelEnum.GOLD ) ) {
+            return .2;
+        } else {
+            return 0;
+        }
+    }
+
+    public static MembershipLevelEnum determineLevel( float amountSpent ) {
+        if ( amountSpent >= 1500 ) {
+            return MembershipLevelEnum.DIAMOND;
+        } else if ( amountSpent >= 1000 ) {
+            return MembershipLevelEnum.GOLD;
+        } else {
+            return MembershipLevelEnum.BASIC;
+        }
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();

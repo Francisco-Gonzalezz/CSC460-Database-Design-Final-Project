@@ -298,10 +298,11 @@ public class DBUtils {
     }
 
     public static void saveChangesToMember( GymMember member, Connection dbConnection ) {
+        float amountSpent = getAmountSpentByMember( member, dbConnection );
+        member.setMembershipLevel( GymMember.determineLevel( amountSpent ) );
         try {
             Statement stmt = dbConnection.createStatement();
             stmt.executeUpdate( generateMemberUpdate( member ) );
-            // TODO: Check if level needs to be upped
             stmt.close();
         } catch ( SQLException e ) {
             System.out.println( "Unable to update record for member" );
@@ -512,26 +513,6 @@ public class DBUtils {
         }
 
         return classList;
-    }
-
-    public static float getAmountMemberSpent( GymMember member, Connection dbConnection ) {
-        Float amount = null;
-        try {
-            PreparedStatement stmt = dbConnection
-                .prepareStatement(
-                    "SELECT SUM(AMOUNT) FROM " + BODE1 + PERIOD + TRANSACTION_TABLE
-                        + " WHERE MEMBERID = ? AND XACTTYPE = ?" );
-            stmt.setInt( 1, member.getMemberID() );
-            stmt.setString( 2, "PURCHASE" );
-            ResultSet result = stmt.executeQuery();
-            if ( result.next() ) {
-                amount = result.getFloat( "SUM(AMOUNT)" );
-            }
-            stmt.close();
-        } catch ( SQLException e ) {
-            System.out.println( "Unable to determine how much member has spent" );
-        }
-        return amount;
     }
 
     public static Map<String, String> getNegativeAccountUsers( Connection dbConnection ) {
@@ -827,6 +808,24 @@ public class DBUtils {
             System.out.println( "Unabale to " );
         }
         return courses;
+    }
+
+    private static float getAmountSpentByMember( GymMember member, Connection dbConnection ) {
+        float amount = 0;
+        try {
+            PreparedStatement stmt = dbConnection
+                .prepareStatement(
+                    "SELECT SUM(AMOUNT) FROM " + BODE1 + PERIOD + TRANSACTION_TABLE
+                        + " WHERE MEMBERID = ? AND XACTTYPE = 'PURCHASE'" );
+            stmt.setInt( 1, member.getMemberID() );
+            ResultSet result = stmt.executeQuery();
+            result.next();
+            amount = result.getFloat( "SUM(AMOUNT)" );
+            amount = Math.abs( amount );
+        } catch ( SQLException e ) {
+            System.out.println( "Unable to get money member spent" );
+        }
+        return amount;
     }
 
 }
