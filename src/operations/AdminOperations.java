@@ -1,3 +1,51 @@
+/**
+ * @author Francisco Gonzalez
+ * @author Jake Bode
+ * @version 1.0
+ * Class: AdminOperations.java
+ * Purpose: Encapsulate operations that are specific to individual members. Such as member creation, member deletion, member payment
+ *          and member schedule.
+ * 
+ * Utilizes:
+ *  - java,sql.Connection
+ *  - java.time.Month
+ *  - java.util.ArrayList
+ *  - java.util.Collections
+ *  - java.util.List
+ *  - java.util.Map
+ *  - java.util.Scanner
+ *  - utils.CommonPrints
+ *  - utils.DBUtils
+ * 
+ * Constructor: AdminOperations( Connection, Scanner )L
+ *      - Connection to DB
+ *      - Scanner to read user input
+ * 
+ * Methods:
+ *  openMenu():
+ *      - Opens the admin operation menu and prints the available options within that menu. Reads input from user
+ *        and validates that it was displayed on screen. Then sends over to the functions necessary for the chosen operation.
+ *  listNegativeBalanceMembers():
+ *      - Will query database on all accounts whose balance is below zero and print them out to the console
+ * showTrainerWorkingHours():
+ *      - Queries the DB for the total amount of hours that a trainer is working for a month specified by the user
+ * getInputFromUser():
+ *      - Reads input from user through stdin and if they type anyforn of cancel the exit flag is set and thus when returned
+ *        back to an operation the operation will terminate itself
+ * 
+ * Constants:
+ *  - MAX_INTEGER_OPTION: Maximum valid integer option for user to select
+ *  - MIN_INTEGER_OPTION: Minimum valid integer option for the user to select
+ *  - EXIT: String that will input will be compared to, in order to set exitSignal flag
+ *  - NEGATIVE_BALANCE_OPTION: Integer selection that will list negative balance accounts
+ *  - TRAINER_HOURS_OPTION: Integer selection that will list all trainers working hours for month specified by user
+ *  - RETURN_TO_MAIN_MENU_OPTION: Integer selection that will return control back to the main menu of the program
+ * 
+ * Global Variables:
+ *  scanner: Scanner to read input from stdin from user
+ *  dbConnection: Connection object that is currently connected to Oracle DB
+ *  exitSignal: boolean that will signal a function to stop what it is doing and return to main menu
+ */
 package operations;
 
 import java.sql.Connection;
@@ -33,6 +81,11 @@ public class AdminOperations implements OperationsInterface {
         this.scanner = scanner;
     }
 
+    /**
+     * Opens the menu for admin operations allowing user to select from the available actions.
+     * Once user inputs a value it will be validated that it is a valid option and control will
+     * be handed to whatever function corresponds to that operations
+     */
     @Override
     public void openMenu() {
         System.out.println();
@@ -74,6 +127,10 @@ public class AdminOperations implements OperationsInterface {
         System.out.println();
     }
 
+    /**
+     * Function that will query the DB for accounts whose balance falls below zero. Once that is 
+     * returned it will print out each member and their phone number to the console
+     */
     private void listNegativeBalanceMembers() {
         System.out.println( "Members with negative balances" );
         System.out.println( "------------------------------" );
@@ -89,6 +146,11 @@ public class AdminOperations implements OperationsInterface {
         }
     }
 
+    /**
+     * Function that will query DB for the amount of hours that each trainer works in a given month specified
+     * through user input. Will validate that the month is 1-12. Also handles case where there are no trainers working
+     * the month given.
+     */
     private void showTrainerWorkingHours() {
         System.out.println( "Trainer's working hours" );
         System.out.println( "-----------------------" );
@@ -130,6 +192,11 @@ public class AdminOperations implements OperationsInterface {
         }
     }
 
+    /**
+     * Reads input in from stdin and sees if the user wants to cancel the current operation.
+     * If so it sets the exitSignal flag so the function can exit on return
+     * @return String value that the user entered in through stdin
+     */
     private String getInputFromUser() {
         String userInput = scanner.nextLine();
         if ( userInput.equalsIgnoreCase( EXIT ) ) {

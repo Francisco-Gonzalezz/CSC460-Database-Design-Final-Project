@@ -1,6 +1,7 @@
 
 /**
- * @author Francisco Gonzalez, Jake Bode
+ * @author Francisco Gonzalez
+ * @author Jake Bode
  * CSC 460, Program 4
  * Instructor: Dr. McCann
  * TAs: Daniel Bazmandeh, Zhenyu Qi
