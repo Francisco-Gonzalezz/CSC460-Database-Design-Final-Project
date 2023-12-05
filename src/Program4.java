@@ -1,8 +1,25 @@
 
 /**
- * TODO: Complete the header for this file
- * @author Francisco Gonzalez
- * @author Jake Bode
+ * @author Francisco Gonzalez, Jake Bode
+ * CSC 460, Program 4
+ * Instructor: Dr. McCann
+ * TAs: Daniel Bazmandeh, Zhenyu Qi
+ * Due: December 5, 2023
+ * Description: This file is the main file for Program 4. This program uses the
+ *  Oracle DB connection, with our database schema outlined in the design.pdf
+ *  document within this submission, in order to execute queries on the GYM
+ *  460 schema outlined in the project handout. In brief, the program deals
+ *  with gym membership for gym participants, rental of items at the gym,
+ *  special courses offered by the gym, as well as membership deals and
+ *  discounts. The program allows administrative tasks including adding and
+ *  deleting members from the system, adding and deleting courses from the
+ *  schedule, and adding/updating/deleting course packages that can be
+ *  purchased by members. Special queries:
+ *   - Listing all member with negative account balance.
+ *   - Checking member class schedule for a given month.
+ *   - Checking a trainer's working hours for December.
+ *   - Listing all unreturned items that a user has checked out from the rental
+ *     center.
  */
 
 import java.sql.Connection;

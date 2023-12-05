@@ -1,3 +1,17 @@
+/*
+ * Class name: GymMember
+ * Jake Bode, Frankie Gonzalez
+ * Purpose: This class holds the data collected from the Member table
+ *  within the database. It represents a member of the gym and is created
+ *  when a new member signs up for the gym.
+ * Constructor: GymMember(...) takes in all of the attributes from a single
+ *  tuple in the Member relation and sets all of the values to the
+ *  corresponding variables in this class.
+ * Public getters and setters for every attribute from the tuples are
+ *  defined in this class.
+ * Public method for getFullName()
+ */
+
 package entities;
 
 import enums.MembershipLevelEnum;
@@ -44,6 +58,10 @@ public class GymMember {
         this.accountBalance = accountBalance;
     }
 
+    /*
+     * Concatenates the first and last name to get the full member name,
+     * returning a string.
+     */
     public String getFullName() {
         return firstName + " " + lastName;
     }

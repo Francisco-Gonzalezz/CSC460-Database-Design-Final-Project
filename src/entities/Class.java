@@ -1,3 +1,17 @@
+/*
+ * Class name: Class
+ * Jake Bode, Frankie Gonzalez
+ * Utilizes java.sql.*
+ * Purpose: This class holds the data collected from the Class table
+ *  within the database. It represents a Fitness Class taught in
+ *  the gym as an entity.
+ * Constructor: Class(...) takes in all of the attributes from a single
+ *  tuple in the Class relation and sets all of the values to the
+ *  corresponding variables in this class.
+ * Public getters and setters for every attribute from the tuples are
+ *  defined in this class.
+ */
+
 package entities;
 
 import java.sql.Date;

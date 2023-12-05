@@ -1,3 +1,16 @@
+/*
+ * Class name: Trainer
+ * Jake Bode, Frankie Gonzalez
+ * Purpose: This class holds the data collected from the Trainer table
+ *  within the database. It represents a Fitness Trainer who teaches classes
+ *  at the gym, as an entity.
+ * Constructor: Trainer(...) takes in all of the attributes from a single
+ *  tuple in the Trainer relation and sets all of the values to the
+ *  corresponding variables in this class.
+ * Public getters and setters for every attribute from the tuples are
+ *  defined in this class.
+ */
+
 package entities;
 
 public class Trainer {
@@ -13,6 +26,8 @@ public class Trainer {
         this.lastName = lastName;
         this.phoneNum = phoneNum;
     }
+
+    // Getters and setters
 
     public String getFullName() {
         return firstName + " " + lastName;

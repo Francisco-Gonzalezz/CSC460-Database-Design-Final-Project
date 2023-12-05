@@ -1,3 +1,17 @@
+/*
+ * Class name: RentalLogEntry
+ * Jake Bode, Frankie Gonzalez
+ * Utilizes java.sql.*
+ * Purpose: This class holds the data collected from the RentalLog table
+ *  within the database. It represents an instance of the RentalLog, which represents
+ *  the relationship of a member renting an RentalItem, as an entity.
+ * Constructor: RentalLogEntry(...) takes in all of the attributes from a single
+ *  tuple in the RentalLog relation and sets all of the values to the
+ *  corresponding variables in this class.
+ * Public getters and setters for every attribute from the tuples are
+ *  defined in this class.
+ */
+
 package entities;
 
 import java.sql.Date;
@@ -25,6 +39,8 @@ public class RentalLogEntry {
         this.isReturned = isReturned;
         this.quantityBorrowed = quantityBorrowed;
     }
+
+    // Getters and setters
 
     public int getRentalID() {
         return rentalID;

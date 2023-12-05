@@ -1,3 +1,18 @@
+/*
+ * Class name: Transaction
+ * Jake Bode, Frankie Gonzalez
+ * Utilizes java.sql.*
+ * Purpose: This class holds the data collected from the Transaction table
+ *  within the database. It represents a Transaction entity, which describes
+ *  an instance of a member purchasing a package or adding funds to their account
+ *  balance.
+ * Constructor: Transaction(...) takes in all of the attributes from a single
+ *  tuple in the Transaction relation and sets all of the values to the
+ *  corresponding variables in this class.
+ * Public getters and setters for every attribute from the tuples are
+ *  defined in this class.
+ */
+
 package entities;
 
 import java.sql.Date;

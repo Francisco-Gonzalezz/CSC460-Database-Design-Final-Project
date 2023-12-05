@@ -1,3 +1,16 @@
+/*
+ * Class name: RentalItem
+ * Jake Bode, Frankie Gonzalez
+ * Purpose: This class holds the data collected from the RentalItem table
+ *  within the database. It represents an item that can be rented by members
+ *  at the gym while they are on the premises, as an entity.
+ * Constructor: RentalItem(...) takes in all of the attributes from a single
+ *  tuple in the RentalItem relation and sets all of the values to the
+ *  corresponding variables in this class.
+ * Public getters and setters for every attribute from the tuples are
+ *  defined in this class.
+ */
+
 package entities;
 
 public class RentalItem {
