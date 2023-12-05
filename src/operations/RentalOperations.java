@@ -15,14 +15,15 @@ import utils.DBUtils;
 public class RentalOperations implements OperationsInterface {
 
     private static final int MIN_INTEGER_OPTION = 1;
-    private static final int MAX_INTEGER_OPTION = 4;
+    private static final int MAX_INTEGER_OPTION = 5;
     private static final int SMALLEST_MEMBER_ID = 1;
     private static final String EXIT = "CANCEL";
 
     private static final int RENT_OUT_ITEM_OPTION = 1;
     private static final int RETURN_RENTAL_OPTION = 2;
     private static final int CHECK_QUANTIY_OPTION = 3;
-    private static final int RETURN_TO_MAIN_MENU_OPTION = 4;
+    private static final int CHECK_UNRETURNED_ITEMS_OPTION = 4;
+    private static final int RETURN_TO_MAIN_MENU_OPTION = 5;
 
     private Connection dbConnection;
 
@@ -69,10 +70,53 @@ public class RentalOperations implements OperationsInterface {
             case CHECK_QUANTIY_OPTION:
                 listRentalItemsAndQuantities();
                 break;
+            case CHECK_UNRETURNED_ITEMS_OPTION:
+                listUnreturnedItems();
+                break;
             case RETURN_TO_MAIN_MENU_OPTION:
                 break;
         }
         System.out.println();
+    }
+
+    private void listUnreturnedItems() {
+        System.out.println( "Figure out what items user has not returned yet" );
+        System.out.println( "------------------------------------------------" );
+        System.out.println( "Enter memberID" );
+        GymMember member = null;
+        while ( member == null ) {
+            int memberId;
+            try {
+                memberId = Integer.valueOf( getInputFromUser() );
+                if ( exitSignal ) {
+                    return;
+                }
+            } catch ( NumberFormatException e ) {
+                System.out.println( "Enter a numeric value" );
+                continue;
+            }
+
+            member = DBUtils.retrieveMemberFromID( memberId, dbConnection );
+            if ( member == null ) {
+                System.out.println( "Invalid ID please enter again" );
+                continue;
+            }
+            break;
+        }
+        Map<String, Integer> checkoutItems = DBUtils.getCheckoutRentalsForMember( member, dbConnection );
+        if ( checkoutItems.isEmpty() ) {
+            System.out.println( "\n" + member.getFullName() + " has no unreturned items" );
+            return;
+        }
+
+        System.out.println( "\nList of items rented by " + member.getFullName() + " and quantity borrowed" );
+        System.out
+            .println(
+                "-------------------------------------------------------------------------------------------------" );
+        for ( String item : checkoutItems.keySet() ) {
+            int checkout = checkoutItems.get( item );
+            System.out.println( item + " " + checkout );
+        }
     }
 
     private void openReturnItemMenu() {
