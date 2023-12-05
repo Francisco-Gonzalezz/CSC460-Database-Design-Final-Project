@@ -101,16 +101,20 @@ public class RentalOperations implements OperationsInterface {
         }
 
         // Get rental items from db that is in possesion of member
+        Map<String, Integer> checkoutItems = DBUtils.getCheckoutRentalsForMember( member, dbConnection );
+        if ( checkoutItems.isEmpty() ) {
+            System.out.println( "\n" + member.getFullName() + " has no unreturned items" );
+            return;
+        }
+
         System.out.println( "\nList of items rented by " + member.getFullName() + " and quantity borrowed" );
         System.out
             .println(
                 "-------------------------------------------------------------------------------------------------" );
-        Map<String, Integer> checkoutItems = DBUtils.getCheckoutRentalsForMember( member, dbConnection );
         for ( String item : checkoutItems.keySet() ) {
             int checkout = checkoutItems.get( item );
             System.out.println( item + " " + checkout );
         }
-
         // Ask user to select an item from above
         System.out.println( "\nSelect an item to return" );
         String itemBeingReturned = "";
@@ -125,31 +129,8 @@ public class RentalOperations implements OperationsInterface {
             }
             break;
         }
-
-        // Ask user how many they are returning
-        int maxReturn = checkoutItems.get( itemBeingReturned );
-        System.out.println( "\nHow many " + itemBeingReturned + "s are being returned ( Max " + maxReturn + " )" );
-        System.out.println( "--------------------------------------------------------------" );
-        int amountBeingReturned;
-        while ( true ) {
-            try {
-                amountBeingReturned = Integer.valueOf( getInputFromUser() );
-                if ( exitSignal ) {
-                    return;
-                }
-            } catch ( NumberFormatException e ) {
-                System.out.println( "Value must be numeric" );
-                continue;
-            }
-
-            if ( amountBeingReturned < 1 || amountBeingReturned > maxReturn ) {
-                System.out.println( "Must between 1-" + maxReturn + " " + itemBeingReturned + "s" );
-                continue;
-            }
-            break;
-        }
-
-        DBUtils.returnItems( itemBeingReturned, amountBeingReturned, dbConnection );
+        DBUtils.returnItem( itemBeingReturned, dbConnection );
+        DBUtils.updateRentalLog( member, itemBeingReturned, dbConnection );
     }
 
     private void openRentOutItemMenu() {
@@ -192,26 +173,7 @@ public class RentalOperations implements OperationsInterface {
             break;
         }
 
-        int inStock = rentalMap.get( item );
-        System.out.println( "How many would you like to rent ( limit " + inStock + " )" );
-        int toRentOut = 0;
-        while ( true ) {
-            try {
-                toRentOut = Integer.valueOf( getInputFromUser() );
-                if ( exitSignal ) {
-                    return;
-                }
-            } catch ( NumberFormatException e ) {
-                System.out.println( "Must enter a nummeric value" );
-                continue;
-            }
-            if ( toRentOut < 1 || toRentOut > inStock ) {
-                System.out.println( "Must select a number between 1 and " + inStock );
-                continue;
-            }
-            break;
-        }
-
+        int toRentOut = 1;
         RentalItem itemSelected = null;
         for ( RentalItem rentalItem : rentalItems ) {
             if ( rentalItem.getItemName().equalsIgnoreCase( item ) ) {
@@ -226,7 +188,7 @@ public class RentalOperations implements OperationsInterface {
             member.getMemberID(),
             itemSelected.getItemNum(),
             new Date( System.currentTimeMillis() ),
-            null,
+            false,
             toRentOut );
         DBUtils.saveNewRentalLogEntry( entry, dbConnection );
 

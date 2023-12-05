@@ -7,7 +7,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
-import java.sql.Types;
 import java.time.Year;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -184,11 +183,9 @@ public class DBUtils {
         try {
             PreparedStatement getLogInfo = dbConnection
                 .prepareStatement(
-                    "SELECT ITEMNUM, QUANTITY FROM " + BODE1 + PERIOD + RENTAL_LOG_TABLE + " WHERE MEMBERID = ?" );
+                    "SELECT ITEMNUM, QUANTITY, RETURNED FROM " + BODE1 + PERIOD + RENTAL_LOG_TABLE
+                        + " WHERE MEMBERID = ? AND RETURNED = 0" );
             getLogInfo.setInt( 1, member.getMemberID() );
-            PreparedStatement getItemName = dbConnection
-                .prepareStatement(
-                    "SELECT ITEMNAME FROM " + BODE1 + PERIOD + RENTAL_ITEM_TABLE + " WHERE ITEMNUM = ?" );
             ResultSet logInfo = getLogInfo.executeQuery();
             while ( logInfo.next() ) {
                 int itemNum = logInfo.getInt( "ITEMNUM" );
@@ -198,14 +195,16 @@ public class DBUtils {
                     int stored = rentals.get( itemName );
                     stored += quantityBorrowed;
                     rentals.put( itemName, stored );
+                    System.out.println( "here" );
                 } else {
                     rentals.put( itemName, quantityBorrowed );
                 }
+
             }
             getLogInfo.close();
-            getItemName.close();
         } catch ( SQLException e ) {
             System.out.println( "Unable to retrieve member's rental items" );
+            System.out.println( e.getMessage() );
         }
         return rentals;
     }
@@ -706,8 +705,8 @@ public class DBUtils {
             stmt.setInt( 2, entry.getMemberID() );
             stmt.setInt( 3, entry.getItemNum() );
             stmt.setDate( 4, entry.getOutTime() );
-            stmt.setNull( 5, Types.NULL );
-            stmt.setInt( 6, entry.getQuantityBorrowed() );
+            stmt.setInt( 5, entry.getQuantityBorrowed() );
+            stmt.setBoolean( 6, entry.isReturned() );
             stmt.executeUpdate();
             stmt.close();
         } catch ( SQLException e ) {
@@ -734,19 +733,58 @@ public class DBUtils {
         return sqlBuilder.toString();
     }
 
-    public static void returnItems( String itemName, int qunatity, Connection dbConnection ) {
+    public static void returnItem( String itemName, Connection dbConnection ) {
         try {
             PreparedStatement stmt = dbConnection
                 .prepareStatement(
                     "UPDATE " + BODE1 + PERIOD + RENTAL_ITEM_TABLE
-                        + " SET QTYINSTOCK = QTYINSTOCK + ? WHERE ITEMNAME = ?" );
-            stmt.setInt( 1, qunatity );
-            stmt.setString( 2, itemName );
+                        + " SET QTYINSTOCK = QTYINSTOCK + 1 WHERE ITEMNAME = ?" );
+            stmt.setString( 1, itemName );
             stmt.executeUpdate();
             stmt.close();
         } catch ( SQLException e ) {
             System.out.println( "Unable to return item" );
+            System.out.println( e.getMessage() );
         }
+    }
+
+    public static void updateRentalLog( GymMember member, String itemName, Connection dbConnection ) {
+        try {
+            PreparedStatement stmt = dbConnection
+                .prepareStatement(
+                    "SELECT * FROM " + BODE1 + PERIOD + RENTAL_LOG_TABLE
+                        + " WHERE MEMBERID = ? AND RETURNED = 0  AND ITEMNUM = ? ORDER BY OUTTIME ASC" );
+            stmt.setInt( 1, member.getMemberID() );
+            stmt.setInt( 2, getItemIDFromName( itemName, dbConnection ) );
+            ResultSet result = stmt.executeQuery();
+            result.next();
+            int rentalID = result.getInt( "RENTALID" ); // Rental ID to update...oldest first
+            Statement saveReturn = dbConnection.createStatement();
+            saveReturn
+                .executeUpdate(
+                    "UPDATE " + BODE1 + PERIOD + RENTAL_LOG_TABLE + " SET RETURNED = 1 WHERE RENTALID = " + rentalID );
+            stmt.close();
+            saveReturn.close();
+        } catch ( SQLException e ) {
+            System.out.println( "Issue with updating rental log" );
+        }
+    }
+
+    private static int getItemIDFromName( String item, Connection dbConnection ) {
+        int id = -1;
+        try {
+            PreparedStatement stmt = dbConnection
+                .prepareStatement(
+                    "SELECT ITEMNUM FROM " + BODE1 + PERIOD + RENTAL_ITEM_TABLE + " WHERE ITEMNAME = ?" );
+            stmt.setString( 1, item );
+            ResultSet result = stmt.executeQuery();
+            result.next();
+            id = result.getInt( "ITEMNUM" );
+            stmt.close();
+        } catch ( SQLException e ) {
+            System.out.println( "Unable to determine itemnum" );
+        }
+        return id;
     }
 
 }

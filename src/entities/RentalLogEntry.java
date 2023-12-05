@@ -8,7 +8,7 @@ public class RentalLogEntry {
     private int memberID;
     private int itemNum;
     private Date outTime;
-    private Date returnTime;
+    private boolean isReturned;
     private int quantityBorrowed;
 
     public RentalLogEntry(
@@ -16,13 +16,13 @@ public class RentalLogEntry {
         int memberID,
         int itemNum,
         Date outTime,
-        Date returnTime,
+        boolean isReturned,
         int quantityBorrowed ) {
         this.rentalID = rentalID;
         this.memberID = memberID;
         this.itemNum = itemNum;
         this.outTime = outTime;
-        this.returnTime = returnTime;
+        this.isReturned = isReturned;
         this.quantityBorrowed = quantityBorrowed;
     }
 
@@ -58,12 +58,12 @@ public class RentalLogEntry {
         this.outTime = outTime;
     }
 
-    public Date getReturnTime() {
-        return returnTime;
+    public boolean isReturned() {
+        return isReturned;
     }
 
-    public void setReturnTime( Date returnTime ) {
-        this.returnTime = returnTime;
+    public void setReturnStatus( boolean isReturned ) {
+        this.isReturned = isReturned;
     }
 
     public int getQuantityBorrowed() {
