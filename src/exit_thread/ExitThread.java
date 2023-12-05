@@ -1,10 +1,23 @@
-package exit_thread;
-
 /**
- * The purpose of this class is to encapsulate all the "cleanup code" for when the program exits
  * @author Francisco Gonzalez
- * @version 1.0
+ * Class: ExitThread.java
+ * Purpose: Thread to run cleanup tasks when JVM is signalled to stop. Cleans up resources such as the connection to the database and closes the scanner that was used throughout the application
+ * 
+ * Extends the Thread class
+ * Utilizes:
+ *  - java.sql.Connection
+ *  - java.sql.SQLException
+ *  - java.util.Scanner
+ * 
+ * Constructor( Connection, Scanner ):
+ *          Give the two resources that need to be closed at the end of the application
+ * 
+ * Methods:
+ *  - run()
+ *      The code to be run when the thread is told to start ( which is at exit )
+ * 
  */
+package exit_thread;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -16,7 +29,7 @@ public class ExitThread extends Thread {
 
     private Connection dbConnection; // Connection to close
 
-    private Scanner scanner;
+    private Scanner scanner; // Object for user input
 
     public ExitThread( Connection dbConnection, Scanner scanner ) {
         this.dbConnection = dbConnection;
