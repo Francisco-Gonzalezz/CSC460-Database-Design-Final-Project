@@ -3,8 +3,9 @@
  * @author Jake Bode
  * @version 1.0
  * Class: AdminOperations.java
- * Purpose: Encapsulate operations that are specific to individual members. Such as member creation, member deletion, member payment
- *          and member schedule.
+ * Implements: OperationsInteface
+ * Purpose: Encapsulate operations that are specific to admin operations including seeing negative balances, and trainer's working
+ *          hours.
  * 
  * Utilizes:
  *  - java,sql.Connection
@@ -17,7 +18,7 @@
  *  - utils.CommonPrints
  *  - utils.DBUtils
  * 
- * Constructor: AdminOperations( Connection, Scanner )L
+ * Constructor: AdminOperations( Connection, Scanner ):
  *      - Connection to DB
  *      - Scanner to read user input
  * 

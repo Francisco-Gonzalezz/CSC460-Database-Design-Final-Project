@@ -1,3 +1,42 @@
+/**
+ * @author Francisco Gonzalez
+ * @author Jake Bode
+ * 
+ * Class: MemberOperations.java
+ * Implements: OperationsInterface
+ * Purpose: Encapsulate operations that are specific to individual member operations. Such as member creation, member deletion, checking
+ *          member schedules, and purchasing new packages.
+ * 
+ * Utilizes:
+ *  - java.sql.Connection
+ *  - java.sql.Date
+ *  - java.sql.Timestamp
+ *  - java.text.DateFormat
+ *  - java.text.SimpleDateFormat
+ *  - java.util.Map
+ *  - java.util.Scanner
+ *  - java.util.Timezone
+ *  - entities.GymMember
+ *  - entities.Transaction
+ *  - utils.DBUtils
+ *  - utils.CommonPrints
+ *  - utils.ValidationUtils
+ * 
+ * Constructor: MemberOperations( Connection, Scanner ):
+ *  - Connection to DB
+ *  - Scanner to read input from stdin
+ * 
+ * Methods:
+ *  openMenu():
+ *      - Opens the member operations memu and prints the available options within the displayed menu. Reads input from user
+ *        and validates that it was one of the options the user could currently choose from. Then directs control of program
+ *        over to coresponding functions of the option chosen.
+ * rechargeFunds():
+ *      - Starts the proccess of a member paying off any bills they may have or just adding money in anticipation of buying another
+ *        package.
+ * 
+ * 
+ */
 package operations;
 
 import java.sql.Connection;

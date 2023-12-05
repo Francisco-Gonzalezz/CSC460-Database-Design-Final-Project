@@ -3,6 +3,7 @@
  * @author Jake Bode
  * @version 1.0
  * Class: CourseOperations.java
+ * Implements: OperationsInterface
  * Purpose: Encapsulate operations that are speicific to courses and classes. Such as course creation, course deletion, and course updates.
  * 
  * Utilizes:
@@ -34,6 +35,20 @@
  * openRemoveClassWizard():
  *      - Goes through the process of deleting a class from the DB including getting input from user for what class they want to delete.
  *        will then print the names of the people the admin should contact whose class is being cancelled
+ * 
+ * Constants:
+ *  - MINIMUM_INTEGER_OPTION: Minimum valid integer option
+ *  - MAX_INTEGER_OPTION: Maximum valid integer option
+ *  - EXIT: String literal to store the value if entered should end the current operations
+ *  - ADD_COURSE_OPTION: Integer value to enter the add course wizard
+ *  - ADD_CLASS_OPTION: Integer value to enter the add class wizard
+ *  - DELETE_CLASS_OPTION: Integer value to enter the delete class wizard
+ *  - RETURN_TO_MAIN_MENU_OPTION: Integer value to return program to the main menu
+ * 
+ * Global Variables:
+ *  scanner: Scanner object to read input from user through stdin
+ *  dbConnection: Connection to the DB
+ *  exitSignal: Boolean value that tells the program if it should return to main menu or not
  */
 package operations;
 
