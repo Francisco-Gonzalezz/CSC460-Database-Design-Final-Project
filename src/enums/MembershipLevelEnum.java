@@ -1,12 +1,15 @@
-/*
- * Enum name: MembershipLevelEnum
- * Jake Bode, Frankie Gonzalez
- * Purpose: This enum defines the different membership levels that are 
- *  possible within the current gym membership structure.
- * Public getter for getLevel(), the membership level as a string, is
- *  the only public method
+/**
+ * Class: MembershipLevelEnum.java
+ * Purpose: This class holds the different membership levels available. Each enum represents a seperate level.
+ * 
+ * Constructor(String level): Is private and should only be called by the enums themselves and it sets the text that is to be returned when 
+ * the string literal is needed.
+ * 
+ * Public getter to get the string literal from the enum
+ * @author Francisco Gonzalez
+ * @author Jake Bode
+ * @version 1.0
  */
-
 package enums;
 
 public enum MembershipLevelEnum {
@@ -14,13 +17,16 @@ public enum MembershipLevelEnum {
     // only membership levels in the current schema
     BASIC( "BASIC" ), GOLD( "GOLD" ), DIAMOND( "DIAMOND" );
 
-    private String level;
+    private String level; // String literal to return
 
     private MembershipLevelEnum( String level ) {
         this.level = level;
     }
 
-    // Getter for the enum var value
+    /**
+     * Retrieve the string representation of the enum
+     * @return String representation of the enum
+     */
     public String getLevel() {
         return level;
     }

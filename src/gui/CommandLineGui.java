@@ -1,3 +1,45 @@
+/**
+ * @author Francisco Gonzalez
+ * @author Jake Bode
+ * 
+ * Class: CommandLineGui.java
+ * Purpose: This is the point interaction between the DB and the User. This will act as the "Main Menu" for the program.
+ * This will direct flow of control to different operation objects so that different actions can be done. This is also the central
+ * place to terminate the program cleanly.
+ * 
+ * Utilizes:
+ *  - java.sql.Connection
+ *  - java.util.Scanner
+ * 
+ * Constructor: CommandLineGui(Connection)
+ *  - Will use the single connection to database throughout all the operations that are being called
+ * 
+ * Methods:
+ *  startGui():
+ *      - Starts the application loop for the program and prints the diffrent operations types
+ *  getOperationSelection():
+ *      - Reads input from the user and validates the the input is a valid input from the options presented to the user.
+ *        Will then send the option over to the openOperationsMenu(int option) function.
+ *  openOperationsMenu( int ):
+ *      - This menu will use the numeric option given to it and open up that operations menu 
+ * 
+ * Constants:
+ *  - MIN_OPTIONS: The minimum value that can be entered
+ *  - MAX_MAIN_MENU_OPTIONS: The maximum valid integer value to be entered
+ *  - MEMBER_MENU_OPTION: Integer value to enter the member opertaions menu
+ *  - COURSE_MENU_OPTION: Integer value to enter the course/class operations menu
+ *  - PACKAGE_MENU_OPTION: Integer value to enter the package operations menu
+ *  - RENTAL_MENU_OPTION: Integer value to enter the rental operations menu
+ *  - ADMIN_MENU_OPTION: Integer value to enter the admin operations menu
+ *  - EXIT_MENU_OPTION: Integer value to exit the program
+ * 
+ * Global Variables:
+ *  - memberOperations: Object containing possible member actions
+ *  - courseOperations: Object containing possible course/class operations
+ *  - adminOperations: Object containing possible admin operations
+ *  - packageOperations: Object containg posssible package operations
+ *  - rentalOperations: Object containing possible rental operations
+ */
 package gui;
 
 /*
@@ -37,8 +79,6 @@ public class CommandLineGui {
     private static final int ADMIN_MENU_OPTION = 5;
     private static final int EXIT_MENU_OPTION = 6;
 
-    private Connection dbConnection; // Connection to the oracle db
-
     private Scanner scanner; // Scanner to read from stdin
 
     // Operations that can be performed
@@ -50,11 +90,11 @@ public class CommandLineGui {
 
     /**
      * Creates a new instance of a CommandLineGui and access to a SQL DB Connection
+     * Also sets the runtime thread to close resources that need to be freed at the end of the program
      * @param dbConnection
      * @return a new instance of CommandLineGui
      */
     public CommandLineGui( Connection dbConnection ) {
-        this.dbConnection = dbConnection;
         scanner = new Scanner( System.in );
 
         // Create the operations objects that will be needed throughout the front end program
