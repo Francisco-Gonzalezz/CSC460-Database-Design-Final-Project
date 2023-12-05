@@ -125,7 +125,7 @@ public class AdminOperations implements OperationsInterface {
         System.out.println( "\nTrainer hours for " + monthString );
         System.out.println( "-----------------" );
         for ( String trainerName : trainerHours.keySet() ) {
-            float hours = trainerHours.get( trainerName ) / 60;
+            float hours = ( trainerHours.get( trainerName ) / 60 ) * 4;
             System.out.println( trainerName + " is working " + hours + " hours" );
         }
     }

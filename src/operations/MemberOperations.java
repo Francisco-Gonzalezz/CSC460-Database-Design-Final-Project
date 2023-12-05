@@ -222,7 +222,7 @@ public class MemberOperations implements OperationsInterface {
         // Print out the options
         for ( String packageName : packages.keySet() ) {
             float cost = packages.get( packageName );
-            System.out.println( packageName + "  $" + cost );
+            System.out.println( packageName + "  $" + ( cost - ( cost * member.getDiscount() ) ) );
         }
         String userInput = null;
         System.out.println();
@@ -234,7 +234,7 @@ public class MemberOperations implements OperationsInterface {
             }
             break;
         }
-        float cost = packages.get( userInput );
+        float cost = (float) ( packages.get( userInput ) - ( packages.get( userInput ) * member.getDiscount() ) );
         cost = -cost;
         makePurchaseOrRecharge( member, (float) cost );
         DBUtils.saveChangesToMember( member, dbConnection ); // Save changes made to the member object

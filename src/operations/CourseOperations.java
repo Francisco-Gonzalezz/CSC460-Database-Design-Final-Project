@@ -105,7 +105,11 @@ public class CourseOperations implements OperationsInterface {
             }
 
             String[] split = userInput.split( " " );
+            category = split[0];
+            catalogNum = Integer.parseInt( split[1] );
         }
+
+        // TODO: Finsh this
 
     }
 
@@ -145,29 +149,9 @@ public class CourseOperations implements OperationsInterface {
     /**
      * Starts the process of removing a course
      */
-    private void openRemoveCourseWizard() {
-        System.out.println( "Remove Course Wizard ( Type 'Cancel' at anytime to cancel course removal )" );
-        System.out.println( "--------------------------------------------------------------------------" );
-        System.out.println( "Enter " );
-        String category = getInputFromUser();
-        if ( exitSignal ) {
-            return;
-        }
-
-        System.out.println( "Enter a catalog number for new course" );
-        int catalogNum;
-        while ( true ) {
-            try {
-                catalogNum = Integer.valueOf( getInputFromUser() );
-            } catch ( NumberFormatException e ) {
-                System.out.println( "Please enter a numeric value" );
-                continue;
-            }
-            if ( exitSignal ) {
-                return;
-            }
-            break;
-        }
+    private void openRemoveClassWizard() {
+        System.out.println( "Remove class wizard ( Type 'Cancel' to exit menu )" );
+        System.out.println( "--------------------------------------------------" );
 
     }
 
