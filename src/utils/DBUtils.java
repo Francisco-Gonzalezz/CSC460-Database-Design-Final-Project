@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 
 import entities.Class;
+import entities.Course;
 import entities.GymMember;
 import entities.RentalItem;
 import entities.RentalLogEntry;
@@ -299,7 +300,8 @@ public class DBUtils {
     public static void saveChangesToMember( GymMember member, Connection dbConnection ) {
         try {
             Statement stmt = dbConnection.createStatement();
-            int returnCode = stmt.executeUpdate( generateMemberUpdate( member ) );
+            stmt.executeUpdate( generateMemberUpdate( member ) );
+            // TODO: Check if level needs to be upped
             stmt.close();
         } catch ( SQLException e ) {
             System.out.println( "Unable to update record for member" );
@@ -563,14 +565,16 @@ public class DBUtils {
         Map<Timestamp, Float> startTimeAndDuration = new HashMap<>();
         Calendar maxCalendar = Calendar.getInstance();
         maxCalendar.clear();
-        maxCalendar.set( Calendar.MONTH, month );
+        maxCalendar.set( Calendar.MONTH, month - 1 );
         maxCalendar.set( Calendar.YEAR, Year.now().getValue() );
         maxCalendar.set( Calendar.DAY_OF_MONTH, maxCalendar.getActualMaximum( Calendar.DAY_OF_MONTH ) );
+
         Calendar minCalendar = Calendar.getInstance();
         minCalendar.clear();
-        minCalendar.set( Calendar.MONTH, month );
+        minCalendar.set( Calendar.MONTH, month - 1 );
         minCalendar.set( Calendar.YEAR, Year.now().getValue() );
-        minCalendar.set( Calendar.DAY_OF_MONTH, minCalendar.getActualMinimum( Calendar.DAY_OF_MONTH ) );
+        minCalendar.set( Calendar.DAY_OF_MONTH, 1 );
+
         Date maxDate = new Date( maxCalendar.getTime().getTime() );
         Date minDate = new Date( minCalendar.getTime().getTime() );
         try {
@@ -586,7 +590,13 @@ public class DBUtils {
                 getClassInfo.setInt( 1, classNum );
                 ResultSet classInfo = getClassInfo.executeQuery();
                 while ( classInfo.next() ) {
-                    startTimeAndDuration.put( classInfo.getTimestamp( "STARTTIME" ), classInfo.getFloat( "DURATION" ) );
+                    Date startDate = classInfo.getDate( "STARTDATE" );
+                    Date endDate = classInfo.getDate( "ENDDATE" );
+                    if ( ( startDate.after( minDate ) && startDate.before( maxDate ) )
+                        || ( endDate.after( minDate ) && endDate.before( maxDate ) ) ) {
+                        startTimeAndDuration
+                            .put( classInfo.getTimestamp( "STARTTIME" ), classInfo.getFloat( "DURATION" ) );
+                    }
                 }
             }
             getClassInfo.close();
@@ -615,7 +625,6 @@ public class DBUtils {
         Date minDate = new Date( minCalendar.getTime().getTime() );
         try {
             List<Trainer> allTrainers = listAllTrainers( dbcConnection );
-            System.out.println( allTrainers.size() );
             PreparedStatement stmt = dbcConnection
                 .prepareStatement(
                     "SELECT DURATION, ENDDATE FROM " + BODE1 + PERIOD + CLASS_TABLE + " WHERE TRAINERID = ?" );
@@ -785,6 +794,39 @@ public class DBUtils {
             System.out.println( "Unable to determine itemnum" );
         }
         return id;
+    }
+
+    public static void saveNewCourse( Course course, Connection dbConnection ) {
+        try {
+            PreparedStatement stmt = dbConnection
+                .prepareStatement( "INSERT INTO " + BODE1 + PERIOD + COURSE_TABLE + " VALUES ( ?, ?, ? )" );
+            stmt.setInt( 1, course.getCourseID() );
+            stmt.setString( 2, course.getCategory() );
+            stmt.setInt( 3, course.getCatalogNum() );
+            stmt.executeUpdate();
+            stmt.close();
+        } catch ( SQLException e ) {
+            System.out.println( "Unable to save the new course" );
+        }
+    }
+
+    public static List<Course> getAllCourses( Connection dbConnection ) {
+        List<Course> courses = new ArrayList<>();
+        try {
+            Statement stmt = dbConnection.createStatement();
+            ResultSet result = stmt.executeQuery( "SELECT * FROM " + BODE1 + PERIOD + COURSE_TABLE );
+            while ( result.next() ) {
+                int id = result.getInt( "COURSEID" );
+                String category = result.getString( "CATEGORY" );
+                int catNum = result.getInt( "CATALOGNUM" );
+                Course course = new Course( id, category, catNum );
+                courses.add( course );
+            }
+            stmt.close();
+        } catch ( SQLException e ) {
+            System.out.println( "Unabale to " );
+        }
+        return courses;
     }
 
 }

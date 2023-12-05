@@ -14,6 +14,21 @@ public class Course {
         this.catalogNum = catalogNum;
     }
 
+    public String padCatalogNum() {
+        String catNum = String.valueOf( catalogNum );
+        String padding = "";
+        int i = 0;
+        while ( padding.length() + catNum.length() < 3 ) {
+            padding += "0";
+        }
+        return padding + catNum;
+    }
+
+    @Override
+    public String toString() {
+        return category + " " + padCatalogNum();
+    }
+
     // Getters and Setters
 
     public int getCourseID() {

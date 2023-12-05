@@ -3,6 +3,8 @@ package operations;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.Timestamp;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.TimeZone;
@@ -317,13 +319,13 @@ public class MemberOperations implements OperationsInterface {
                 continue;
             }
 
-            if ( month < 0 || month > 12 ) {
+            if ( month < 1 || month > 12 ) {
                 System.out.println( "Enter 1-12 please" );
                 continue;
             }
             break;
         }
-
+        DateFormat formatter = new SimpleDateFormat( "EEEE" );
         System.out.println( "Schedule for " + member.getFullName() + "\n" );
         Map<Timestamp, Float> schedule = DBUtils.getMemberScheduleForMonth( member, month, dbConnection );
         for ( Timestamp startTime : schedule.keySet() ) {
@@ -340,7 +342,8 @@ public class MemberOperations implements OperationsInterface {
                 endHour -= 11;
                 endAMPM = "PM";
             }
-            System.out.println( startHour + startAMPM + " - " + endHour + endAMPM );
+            String dayOfWeek = formatter.format( startTime );
+            System.out.println( dayOfWeek + " " + startHour + startAMPM + " - " + endHour + endAMPM );
         }
 
     }
