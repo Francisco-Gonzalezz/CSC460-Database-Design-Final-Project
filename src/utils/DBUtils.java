@@ -427,6 +427,16 @@ public class DBUtils {
 
     public static void addToMemberClassTable( GymMember member, Class gymClass, Connection dbConnection ) {
         try {
+            PreparedStatement testStmt = dbConnection
+                .prepareStatement( "SELECT CLASSNUM FROM " + BODE1 + PERIOD + MEMBER_CLASS_TABLE + " WHERE MEMBERID = ?" );
+            testStmt.setInt( 1, member.getMemberID() );
+            ResultSet classNumSet = testStmt.executeQuery();
+            while ( classNumSet.next() ) {
+                if ( classNumSet.getInt(1) == gymClass.getClassNum() ) {
+                    return;
+                }
+            }
+
             PreparedStatement stmt = dbConnection
                 .prepareStatement( "INSERT INTO " + BODE1 + PERIOD + MEMBER_CLASS_TABLE + " VALUES (?, ?)" );
             stmt.setInt( 1, member.getMemberID() );
