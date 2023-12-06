@@ -66,6 +66,7 @@
  * getMemberIDFromUser():
  *      - Asks user for the member id and verifies that it could potentially be a valid id 
  */
+
 package operations;
 
 import java.sql.Connection;
@@ -104,6 +105,7 @@ public class MemberOperations implements OperationsInterface {
 
     private boolean exitSignal;
 
+    // Constructor, uses connection and scanner objects
     public MemberOperations( Connection dbConnection, Scanner scanner ) {
         this.dbConnection = dbConnection;
         this.scanner = scanner;
@@ -160,6 +162,9 @@ public class MemberOperations implements OperationsInterface {
         System.out.println();
     }
 
+    /**
+     * This private method handles the user recharging funds to their account
+     */
     private void rechargeFunds() {
         // Get gym member information
         GymMember member = null;
@@ -197,6 +202,11 @@ public class MemberOperations implements OperationsInterface {
         makePurchaseOrRecharge( member, rechargeAmount );
     }
 
+    /**
+     * This private method calls the util methods to set the account balance for a member
+     *  and to create a transaction to store in the database
+     * Arguments: gym member object and amount to add to account
+     */
     private void makePurchaseOrRecharge( GymMember member, float amount ) {
         // Update member balance and save change
         member.setBalance( member.getBalance() + amount );
@@ -204,6 +214,12 @@ public class MemberOperations implements OperationsInterface {
         createTransaction( member, amount, dbConnection );
     }
 
+    /**
+     * This private method creates the transaction tuple in the transaction relation to
+     *  describe either the purchase of a package by a member or the recharge of the
+     *  account funds.
+     * Arguments: gym member object, amount to add to account, connection to database
+     */
     private void createTransaction( GymMember member, float amount, Connection dbConnection ) {
         int generatedID = DBUtils.generateIDNumberFromSequence( dbConnection );
         String transactionType = null;
@@ -224,7 +240,7 @@ public class MemberOperations implements OperationsInterface {
     }
 
     /**
-     * Goes through the process of adding a new member to DB
+     * Goes through the process of adding a new member to DB with the UI
      */
     private void openAddMemberWizard() {
         System.out.println( "New Member Wizard ( Type 'Cancel' at anytime to cancel member creation )" );
@@ -262,6 +278,9 @@ public class MemberOperations implements OperationsInterface {
         System.out.println( "\nThe new member's ID is: " + newMember.getMemberID() );
     }
 
+    /**
+     * Handles the user interaction with members purchasing a package
+     */
     private void memberPackagePurchase() {
         GymMember member = null;
         while ( member == null ) {
@@ -275,18 +294,23 @@ public class MemberOperations implements OperationsInterface {
                 System.out.println( "Invalid member id. Verify that id was typed in correctly" );
             }
         }
-
         promptUserForPackagePurchase( member );
     }
 
+    /**
+     * Handles the user interaction with members purchasing a package, either at account creation or upon selection
+     *  in the member operations menu
+     * @param member - member that will be purchasing the course package
+     */
     private void promptUserForPackagePurchase( GymMember member ) {
-        System.out.println( "\nSelect a package for user to purchase ( Type name of package )" );
-        System.out.println( "---------------------------------------------------------------" );
+        System.out.println( "\nSelect a package for user to purchase ( Type name of package or 'cancel' for none )" );
+        System.out.println( "-------------------------------------------------------------------------------------" );
         Map<String, Float> packages = DBUtils.getPackagesAndPrices( dbConnection );
         if ( packages.isEmpty() ) {
             System.err.println( "Unable to find any packages. Cancelling purchase." );
             return;
         }
+
         // Print out the options
         for ( String packageName : packages.keySet() ) {
             float cost = packages.get( packageName );
@@ -295,21 +319,27 @@ public class MemberOperations implements OperationsInterface {
         String userInput = null;
         System.out.println();
         while ( true ) {
-            userInput = scanner.nextLine();
+            userInput = readInputFromUser();
+            if ( exitSignal ) {
+                System.out.println( "Cancelling package purchase for member." );
+                return;
+            }
             if ( !packages.containsKey( userInput ) ) {
                 System.out.println( "Please enter a choice from above." );
                 continue;
             }
-            break;
+	        break;
         }
         float cost = (float) ( packages.get( userInput ) - ( packages.get( userInput ) * member.getDiscount() ) );
         cost = -cost;
         makePurchaseOrRecharge( member, (float) cost );
-        DBUtils.saveChangesToMember( member, dbConnection ); // Save changes made to the member object
 
         DBUtils.addMemberToPackageCourses( member, userInput, dbConnection );
     }
 
+    /**
+     * Handles user interaction with removing a member from the database
+     */
     private void openRemoveMemberWizard() {
         System.out.println( "Remove Member Wizard ( Type 'Cancel' at anytime to cancel member deletion )" );
         System.out.println( "---------------------------------------------------------------------------" );
@@ -342,6 +372,10 @@ public class MemberOperations implements OperationsInterface {
         DBUtils.removeMemberFromDB( member, dbConnection );
     }
 
+    /**
+     * Handles user interaction with member schedule search, printing out a formatted schedule of
+     *  the user's classes during a given month
+     */
     private void openMemberClassScheduleSearch() {
         System.out.println( "Member Schedule Search Wizard ( Type 'Cancel' to exit wizard )" );
         System.out.println( "--------------------------------------------------------------" );
@@ -418,6 +452,10 @@ public class MemberOperations implements OperationsInterface {
 
     // Functions to grab input from user
 
+    /**
+     * Gathers user input with the possibility of cancelling an operation, which
+     *  is handled in methods that call this one
+     */
     private String readInputFromUser() {
         String userInput = scanner.nextLine();
         if ( userInput.equalsIgnoreCase( EXIT ) ) {
@@ -426,10 +464,18 @@ public class MemberOperations implements OperationsInterface {
         return userInput;
     }
 
+    /**
+     * Handles getting a valid email address from the user in member creation or
+     *  cancel member creation
+     * @return string of email to add to the database
+     */
     private String getEmailFromUser() {
         System.out.println( "Enter new member's email address" );
         String email = "";
         email = readInputFromUser();
+        if ( exitSignal ) {
+            return null;
+        }
         while ( !ValidationUtils.validateEmail( email ) ) {
             System.out.println( "Please enter a valid email" );
             email = readInputFromUser();
@@ -441,10 +487,18 @@ public class MemberOperations implements OperationsInterface {
         return email;
     }
 
+    /**
+     * Handles getting a valid phone number from the user in member account creation
+     *  or cancel member creation
+     * @return string of phone number to add to the database
+     */
     private String getPhoneNumberFromUser() {
         System.out.println( "Enter new member's phone number" );
         String phoneNumber = "";
         phoneNumber = readInputFromUser();
+        if ( exitSignal ) {
+            return null;
+        }
         while ( !ValidationUtils.validatePhoneNumber( phoneNumber ) ) {
             System.out.println( "Please enter a valid phone nubmer" );
             phoneNumber = readInputFromUser();
