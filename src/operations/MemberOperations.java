@@ -34,8 +34,37 @@
  * rechargeFunds():
  *      - Starts the proccess of a member paying off any bills they may have or just adding money in anticipation of buying another
  *        package.
- * 
- * 
+ * makePurchaseOrRecharge(float amount):
+ *      - Determines if transaction was a purchase or a recharge based on the sign of the amount passed in. Will
+ *        then call function to create a Transaction entity within the DB and save it.
+ * createTransaction( GymMember member, float amount, Connection dbConnection ):
+ *      - This function will create a new Transaction entity for the DB to store with relevant information like member id, amount, etc.
+ *        Will call database function to save the object into the DB
+ * openAddMemberWizard():
+ *      - Takes user through the creation of a new member where various information is asked such as name, phone number, email. This is then
+ *         placed into a GymMember object where it is sent to DBUtils to be saved into the database.
+ * memberPackagePurchase():
+ *      - Goes through the process of a member purchasing a new package where they are asked for their member id
+ *        then are prompted with the available packages. This function then calls makePurchaseOrRecharge where it creates
+ *        a transaction and subtracts the amount of the package from the member current balance.
+ * promptUserForPackagePurchase():
+ *      - Will prompt user to which package they would like to purchase after listing them all out and their prices. The prices will be
+ *        displayed with the member current discount level prices
+ * openRemoveMemberWizard():
+ *      - Takes the user through the process of deleting a member, will then unenroll member from all current class if they are at a positive balance
+ *        for their account. The class enrollment will be updated.
+ * openMemberClassScheduleSearch():
+ *      - Will prompt user for a member id and what month to check the schedule for. Will then display the days of the week within that month they are
+ *        in a class and from their start time to their end time.
+ * getEmailFromUser():
+ *      - Will continually prompt user for an email, then it will validate that the email is in a valid form and return the string
+ *        back if it is valid
+ * getPhoneNumberFromUser():
+ *      - Asks user for phone number and validates that it could be a valid phone number. Returns the number as a string
+ * getNameFromUser():
+ *      - Asks user for first and last name, makes sure that an empty string is not entered.
+ * getMemberIDFromUser():
+ *      - Asks user for the member id and verifies that it could potentially be a valid id 
  */
 package operations;
 
