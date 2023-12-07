@@ -1,3 +1,20 @@
+/**
+ * @author Francisco Gonzalez
+ * @author Jake Bode
+ * 
+ * Class: Validationutils.java
+ * Purpose: Validate input such as phone numbers and email addresses
+ * 
+ * Methods:
+ *  validatePhoneNumber( String ):
+ *      - Validates that the string passes in is a valid phone number format
+ *  validateEmail( String ):
+ *      - Validates that the email address is correct in email form ( x@host.extension )
+ * 
+ * Global Variables
+ *  phoneValidation: Regular expression will match valid phone numbers
+ *  emailValidation: Regular expression will match valid emails
+ */
 package utils;
 
 import java.util.regex.Matcher;

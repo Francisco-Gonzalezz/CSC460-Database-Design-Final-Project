@@ -86,6 +86,10 @@ public class CourseOperations implements OperationsInterface {
         this.scanner = scanner;
     }
 
+    /**
+     * Opens the menu for the possible course operations, reads input from user to decide
+     * what they want to do and hand program control to the function that will perform that task
+     */
     @Override
     public void openMenu() {
         System.out.println();
@@ -131,6 +135,10 @@ public class CourseOperations implements OperationsInterface {
         System.out.println();
     }
 
+    /**
+     * Opens the wizard to take user through the process of creating a new wizard.
+     * Will grab information such as class names and dates and trainers who teach.
+     */
     private void openAddClassWizard() {
         System.out.println( "New Class Wizard ( Type 'Cancel' at anytime to cancel class creation )" );
         System.out.println( "----------------------------------------------------------------------" );
@@ -208,6 +216,10 @@ public class CourseOperations implements OperationsInterface {
 
     }
 
+    /**
+     * Gets input from user stdin
+     * @return String value of what user entered
+     */
     private String getInputFromUser() {
         String input = scanner.nextLine();
         if ( input.equalsIgnoreCase( EXIT ) ) {

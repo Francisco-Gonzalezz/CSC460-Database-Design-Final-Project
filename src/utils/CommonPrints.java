@@ -1,3 +1,22 @@
+/**
+ * @author Francisco Gonzalez
+ * @author Jake Bode
+ * Class: CommonPrints.java
+ * Purpose: This class will print out the different prints that are used pretty frequently throughout the program
+ * 
+ * Methods:
+ *  - printWelcomeMessage()
+ *  - promptUserToSelectTypeOfOperation()
+ *  - printStandardOptions()
+ *  - printGymMemberOperations()
+ *  - printCourseOperations()
+ *  - printPackageOperations()
+ *  - printRentalOperations()
+ *  - printAdminOperations()
+ *  - printInvalidOptionMessage()
+ *  - printMemberCreationCancelled()
+ *  - printExitMessage()
+ */
 package utils;
 
 public class CommonPrints {
@@ -71,6 +90,9 @@ public class CommonPrints {
         System.out.println( "4) Return to previous menu" );
     }
 
+    /**
+     * Prints out the possible rental operations
+     */
     public static void printRentalOperations() {
         System.out.println( "Rental Operations" );
         System.out.println( "-----------------" );
