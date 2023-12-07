@@ -60,6 +60,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import entities.Course;
+import entities.Trainer;
 import utils.CommonPrints;
 import utils.DBUtils;
 
@@ -142,8 +143,31 @@ public class CourseOperations implements OperationsInterface {
     private void openAddClassWizard() {
         System.out.println( "New Class Wizard ( Type 'Cancel' at anytime to cancel class creation )" );
         System.out.println( "----------------------------------------------------------------------" );
-        System.out.println( "\nAvailable course to select" );
-        System.out.println( "------------------------------" );
+
+        int classId = DBUtils.generateIDNumberFromSequence( dbConnection );
+        
+        int courseId = getCourseFromUser();
+        if ( exitSignal ) {
+            return;
+        }
+        // prompt for time/date
+
+        int trainerId = getTrainerFromUser();
+        if ( exitSignal ) {
+            return;
+        }
+
+        // Class newClass = new Class(  );
+        // DBUtils.saveNewClass( newClass, dbConnection );
+    }
+
+    /**
+     * Asks user for the course to be offered as a class (to be created),
+     *  dealing with error handling and managing UI
+     */
+    private int getCourseFromUser() {
+        System.out.println( "Available courses to select from:" );
+        System.out.println( "---------------------------------" );
         List<Course> coursesAvailable = DBUtils.getAllCourses( dbConnection );
         for ( Course course : coursesAvailable ) {
             System.out.println( course );
@@ -157,21 +181,58 @@ public class CourseOperations implements OperationsInterface {
         while ( true ) {
             userInput = getInputFromUser();
             if ( exitSignal ) {
-                return;
+                CommonPrints.printClassCreationCancelled();
+                return 0;
             }
 
+            // validates input, restricted to course list
             if ( !courseNames.contains( userInput ) ) {
-                System.out.println( "Please select a course from above" );
+                System.out.println( "Please select a course from the list above" );
                 continue;
             }
 
             String[] split = userInput.split( " " );
             category = split[0];
             catalogNum = Integer.parseInt( split[1] );
+            break;
         }
+        return DBUtils.getCourseId( category, catalogNum, dbConnection );
+    }
 
-        // TODO: Finsh this
+    /**
+     * Asks user for the trainer that will teach the class to be created,
+     *  dealing with error handling and managing UI
+     */
+    private int getTrainerFromUser() {
+        System.out.println( "\nSelect a trainer to teach this class:" );
+        System.out.println( "-------------------------------------" );
+        List<Trainer> allTrainers = DBUtils.listAllTrainers( dbConnection );
+        for ( Trainer trainer : allTrainers ) {
+            System.out.println( trainer.getFullName() );
+        }
+        Set<String> trainerNames = new HashSet<>(
+            allTrainers.stream().map( Trainer::getFullName ).collect( Collectors.toSet() ) );
+        System.out.println();
+        String trainerFname, trainerLname, userInput;
+        while ( true ) {
+            userInput = getInputFromUser();
+            if ( exitSignal ) {
+                CommonPrints.printClassCreationCancelled();
+                return 0;
+            }
 
+            // validates input, restricted to course list
+            if ( !trainerNames.contains( userInput ) ) {
+                System.out.println( "Please select a trainer from the list above" );
+                continue;
+            }
+
+            String[] split = userInput.split( " " );
+            trainerFname = split[0];
+            trainerLname = split[1];
+            break;
+        }
+        return DBUtils.getTrainerId( trainerFname, trainerLname, dbConnection );
     }
 
     /**
@@ -192,7 +253,7 @@ public class CourseOperations implements OperationsInterface {
             try {
                 catalogNum = Integer.valueOf( getInputFromUser() );
             } catch ( NumberFormatException e ) {
-                System.out.println( "Please enter a numeric value" );
+                System.out.println( "Please enter an integer value" );
                 continue;
             }
             if ( exitSignal ) {
@@ -213,7 +274,7 @@ public class CourseOperations implements OperationsInterface {
     private void openRemoveClassWizard() {
         System.out.println( "Remove class wizard ( Type 'Cancel' to exit menu )" );
         System.out.println( "--------------------------------------------------" );
-
+        System.out.println( "We did not get to complete this functionality :(" );
     }
 
     /**

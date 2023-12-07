@@ -210,6 +210,9 @@ public class DBUtils {
         return rentals;
     }
 
+    /**
+     * 
+     */
     private static String getItemName( int itemNum, Connection dbConnection ) {
         String name = "";
         try {
@@ -297,6 +300,9 @@ public class DBUtils {
         }
     }
 
+    /**
+     * 
+     */
     public static void saveChangesToMember( GymMember member, Connection dbConnection ) {
         float amountSpent = getAmountSpentByMember( member, dbConnection );
         member.setMembershipLevel( GymMember.determineLevel( amountSpent ) );
@@ -309,6 +315,9 @@ public class DBUtils {
         }
     }
 
+    /**
+     * 
+     */
     private static String generateMemberUpdate( GymMember member ) {
         StringBuilder sqlBuilder = new StringBuilder( "UPDATE " + BODE1 + PERIOD + MEMBER_TABLE + " SET\n" );
         sqlBuilder.append( "MEMBERID = " + member.getMemberID() + ",\n" );
@@ -322,6 +331,9 @@ public class DBUtils {
         return sqlBuilder.toString();
     }
 
+    /**
+     * 
+     */
     public static void removeMemberFromDB( GymMember member, Connection dbConnection ) {
         try {
             Statement stmt = dbConnection.createStatement();
@@ -334,6 +346,9 @@ public class DBUtils {
         }
     }
 
+    /**
+     * 
+     */
     public static int generateIDNumberFromSequence( Connection dbConnection ) {
         int generatedID = 0;
         try {
@@ -349,6 +364,9 @@ public class DBUtils {
         return generatedID;
     }
 
+    /**
+     * 
+     */
     public static void saveNewTransaction( Transaction transaction, Connection dbConnection ) {
         try {
             Statement stmt = dbConnection.createStatement();
@@ -359,6 +377,9 @@ public class DBUtils {
         }
     }
 
+    /**
+     * 
+     */
     private static String generateInsertTransaction( Transaction transaction ) {
         StringBuilder sqlBuilder = new StringBuilder(
             "INSERT INTO " + BODE1 + PERIOD + TRANSACTION_TABLE + " VALUES (\n" );
@@ -371,16 +392,42 @@ public class DBUtils {
         return sqlBuilder.toString();
     }
 
+    /**
+     * Fetches the course id associated with a category and catalog number
+     *  from the Course table within the database.
+     */
+    public static int getCourseId( String category, int catalogNum, Connection dbConnection ) {
+        int courseId = 0;
+        try {
+            Statement stmt = dbConnection.createStatement();
+            ResultSet courseIdResult = stmt.executeQuery( "SELECT COURSEID FROM " + BODE1
+                + PERIOD + COURSE_TABLE + " WHERE CATEGORY='" + category 
+                + "' AND CATALOGNUM=" + catalogNum );
+            courseIdResult.next();
+            courseId = courseIdResult.getInt( "COURSEID" );
+            stmt.close();
+        } catch ( SQLException e ) {
+            System.out.println( "Unable to add new class with this course" );
+        }
+        return courseId;
+    }
+
+    /**
+     * 
+     */
     public static void saveNewClass( Class newClass, Connection dbConnection ) {
         try {
             Statement stmt = dbConnection.createStatement();
             stmt.executeUpdate( generateInsertClassQuery( newClass ) );
             stmt.close();
         } catch ( SQLException e ) {
-            System.out.println( "Unable to save new class" );
+            System.out.println( "Unable to add new class" );
         }
     }
 
+    /**
+     * 
+     */
     private static String generateInsertClassQuery( Class newClass ) {
         StringBuilder sqlBuilder = new StringBuilder( "INSERT INTO " + BODE1 + PERIOD + CLASS_TABLE + " VALUES (" );
         sqlBuilder.append( newClass.getClassNum() + ",\n" );
@@ -396,6 +443,9 @@ public class DBUtils {
         return sqlBuilder.toString();
     }
 
+    /**
+     * 
+     */
     public static void addMemberToPackageCourses( GymMember member, String packageName, Connection dbConnection ) {
         try {
             // Grab all the courses that are in the package the member bought
@@ -425,6 +475,9 @@ public class DBUtils {
         }
     }
 
+    /**
+     * 
+     */
     public static void addToMemberClassTable( GymMember member, Class gymClass, Connection dbConnection ) {
         try {
             PreparedStatement testStmt = dbConnection
@@ -448,6 +501,9 @@ public class DBUtils {
         }
     }
 
+    /**
+     * 
+     */
     public static void saveClassInfo( Class gymClass, Connection dbConnection ) {
         try {
             PreparedStatement stmt = dbConnection.prepareStatement( generateSaveClassQuery() );
@@ -468,6 +524,9 @@ public class DBUtils {
         }
     }
 
+    /**
+     * 
+     */
     private static String generateSaveClassQuery() {
         StringBuilder sqlBuilder = new StringBuilder( "UPDATE " + BODE1 + PERIOD + CLASS_TABLE + " SET \n" );
         sqlBuilder.append( "CLASSNUM = ?, " );
@@ -483,6 +542,17 @@ public class DBUtils {
         return sqlBuilder.toString();
     }
 
+    /**
+     * Gets the trainer Id associated with the trainer selected by the user by first
+     *  and last name.
+     */
+    public static int getTrainerId( String fName, String lName, Connection dbConnection ) {
+        return 0;
+    }
+
+    /**
+     * 
+     */
     private static List<Class> formClassList( ResultSet classes ) {
         List<Class> classList = new ArrayList<>();
 
@@ -525,6 +595,9 @@ public class DBUtils {
         return classList;
     }
 
+    /**
+     * 
+     */
     public static Map<String, String> getNegativeAccountUsers( Connection dbConnection ) {
         Map<String, String> namesAndNums = new HashMap<>();
         try {
@@ -550,6 +623,9 @@ public class DBUtils {
         return namesAndNums;
     }
 
+    /**
+     * 
+     */
     public static
         Map<Timestamp, Float>
         getMemberScheduleForMonth( GymMember member, int month, Connection dbConnection ) {
@@ -600,6 +676,9 @@ public class DBUtils {
         return startTimeAndDuration;
     }
 
+    /**
+     * 
+     */
     public static Map<String, Float> getAllTrainersWorkinghours( int month, Connection dbcConnection ) {
         Map<String, Float> trainerHours = new HashMap<>();
         Calendar maxCalendar = Calendar.getInstance();
@@ -638,6 +717,9 @@ public class DBUtils {
         return trainerHours;
     }
 
+    /**
+     * 
+     */
     public static List<Trainer> listAllTrainers( Connection dbConnection ) {
         List<Trainer> trainers = new ArrayList<>();
 
@@ -660,6 +742,9 @@ public class DBUtils {
         return trainers;
     }
 
+    /**
+     * 
+     */
     public static Map<String, Integer> getRentalItemsAndQuantities( Connection dbConnection ) {
         Map<String, Integer> itemAndQunatity = new HashMap<>();
 
@@ -677,6 +762,9 @@ public class DBUtils {
         return itemAndQunatity;
     }
 
+    /**
+     * Is this one useful?
+     */
     public static List<RentalItem> getRentalItems( Connection dbConnection ) {
         List<RentalItem> items = new ArrayList<>();
         try {
@@ -697,6 +785,9 @@ public class DBUtils {
         return items;
     }
 
+    /**
+     * 
+     */
     public static void saveNewRentalLogEntry( RentalLogEntry entry, Connection dbConnection ) {
         try {
             PreparedStatement stmt = dbConnection
@@ -714,6 +805,9 @@ public class DBUtils {
         }
     }
 
+    /**
+     * 
+     */
     public static void saveChangesToRentalItem( RentalItem item, Connection dbConnection ) {
         try {
             PreparedStatement stmt = dbConnection.prepareStatement( generateSaveRentalItemQuery() );
@@ -726,6 +820,9 @@ public class DBUtils {
         }
     }
 
+    /**
+     * 
+     */
     private static String generateSaveRentalItemQuery() {
         StringBuilder sqlBuilder = new StringBuilder( "UPDATE " + BODE1 + PERIOD + RENTAL_ITEM_TABLE + " SET \n" );
         sqlBuilder.append( "QTYINSTOCK = ?\n" );
@@ -733,6 +830,9 @@ public class DBUtils {
         return sqlBuilder.toString();
     }
 
+    /**
+     * 
+     */
     public static void returnItem( String itemName, Connection dbConnection ) {
         try {
             PreparedStatement stmt = dbConnection
@@ -748,6 +848,9 @@ public class DBUtils {
         }
     }
 
+    /**
+     * 
+     */
     public static void updateRentalLog( GymMember member, String itemName, Connection dbConnection ) {
         try {
             PreparedStatement stmt = dbConnection
@@ -770,6 +873,9 @@ public class DBUtils {
         }
     }
 
+    /**
+     * 
+     */
     private static int getItemIDFromName( String item, Connection dbConnection ) {
         int id = -1;
         try {
@@ -787,6 +893,9 @@ public class DBUtils {
         return id;
     }
 
+    /** 
+     * 
+     */
     public static void saveNewCourse( Course course, Connection dbConnection ) {
         try {
             PreparedStatement stmt = dbConnection
@@ -801,6 +910,9 @@ public class DBUtils {
         }
     }
 
+    /**
+     * 
+     */
     public static List<Course> getAllCourses( Connection dbConnection ) {
         List<Course> courses = new ArrayList<>();
         try {
@@ -820,6 +932,9 @@ public class DBUtils {
         return courses;
     }
 
+    /**
+     * 
+     */
     private static float getAmountSpentByMember( GymMember member, Connection dbConnection ) {
         float amount = 0;
         try {

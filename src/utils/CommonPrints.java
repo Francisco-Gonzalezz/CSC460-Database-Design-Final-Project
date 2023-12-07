@@ -73,8 +73,8 @@ public class CommonPrints {
         System.out.println( "Course Operations" );
         System.out.println( "-----------------" );
         System.out.println( "1) Add a course" );
-        System.out.println( "2) Add class" );
-        System.out.println( "3) Remove class" );
+        System.out.println( "2) Add a class offering" );
+        System.out.println( "3) Remove a class offering" );
         System.out.println( "4) Return to previous menu" );
     }
 
@@ -126,6 +126,13 @@ public class CommonPrints {
      */
     public static void printMemberCreationCancelled() {
         System.out.println( "\nCancelling member creation" );
+    }
+
+    /**
+     * Prints when the new class offering creation was cancelled
+     */
+    public static void printClassCreationCancelled() {
+        System.out.println( "\nCancelling class offering creation" );
     }
 
     /**
