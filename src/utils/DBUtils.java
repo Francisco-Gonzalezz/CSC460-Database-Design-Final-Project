@@ -16,6 +16,7 @@ import java.util.Map;
 
 import entities.Class;
 import entities.Course;
+import entities.CoursePackage;
 import entities.GymMember;
 import entities.RentalItem;
 import entities.RentalLogEntry;
@@ -428,11 +429,12 @@ public class DBUtils {
     public static void addToMemberClassTable( GymMember member, Class gymClass, Connection dbConnection ) {
         try {
             PreparedStatement testStmt = dbConnection
-                .prepareStatement( "SELECT CLASSNUM FROM " + BODE1 + PERIOD + MEMBER_CLASS_TABLE + " WHERE MEMBERID = ?" );
+                .prepareStatement(
+                    "SELECT CLASSNUM FROM " + BODE1 + PERIOD + MEMBER_CLASS_TABLE + " WHERE MEMBERID = ?" );
             testStmt.setInt( 1, member.getMemberID() );
             ResultSet classNumSet = testStmt.executeQuery();
             while ( classNumSet.next() ) {
-                if ( classNumSet.getInt(1) == gymClass.getClassNum() ) {
+                if ( classNumSet.getInt( 1 ) == gymClass.getClassNum() ) {
                     return;
                 }
             }
@@ -836,6 +838,70 @@ public class DBUtils {
             System.out.println( "Unable to get money member spent" );
         }
         return amount;
+    }
+
+    /**
+     * Searches DB for the course id of a course given it's name
+     * @param name Name of course
+     * @param dbConnection Connection to DB
+     * @return Course ID for name passed into the function
+     */
+    public static int getCourseIDFromName( String name, Connection dbConnection ) {
+        int id = 0;
+        String[] categoryNum = name.split( " " );
+        String category = categoryNum[0];
+        int catNum = Integer.parseInt( categoryNum[1] );
+        try {
+            PreparedStatement stmt = dbConnection
+                .prepareStatement(
+                    "SELECT COURSEID FROM " + BODE1 + PERIOD + COURSE_TABLE
+                        + " WHERE CATEGORY = ? AND CATALOGNUM = ?" );
+            stmt.setString( 1, category );
+            stmt.setInt( 2, catNum );
+            ResultSet result = stmt.executeQuery();
+            result.next();
+            id = result.getInt( "COURSEID" );
+        } catch ( SQLException e ) {
+            System.out.println( "Unable to find ID from package name" );
+        }
+
+        return id;
+    }
+
+    /**
+     * Saves the course package object into the DB
+     * @param coursePackage Course package to save 
+     * @param dbConnection Connection to DB
+     */
+    public static void saveNewCoursePackage( CoursePackage coursePackage, Connection dbConnection ) {
+        try {
+            PreparedStatement stmt = dbConnection
+                .prepareStatement( "INSERT INTO " + BODE1 + PERIOD + COURSE_PACKAGE_TABLE + " VALUES ( ?, ? )" );
+            stmt.setInt( 1, coursePackage.getCourseID() );
+            stmt.setString( 2, coursePackage.getPackageName() );
+            stmt.executeUpdate();
+        } catch ( SQLException e ) {
+            System.out.println( "Unable to save course package" );
+        }
+    }
+
+    /**
+     * Saves a new package to the DB
+     * @param packageToAdd Package to add
+     * @param dbConnection Connection to DB
+     * @return True if successful and false otherwise
+     */
+    public static boolean saveNewPackage( entities.Package packageToAdd, Connection dbConnection ) {
+        try {
+            PreparedStatement stmt = dbConnection
+                .prepareStatement( "INSERT INTO " + BODE1 + PERIOD + PACKAGE_TABLE + " VALUES ( ?, ? )" );
+            stmt.setString( 1, packageToAdd.getPackageName() );
+            stmt.setFloat( 2, packageToAdd.getCost() );
+            stmt.executeUpdate();
+            return true;
+        } catch ( SQLException e ) {
+            return false;
+        }
     }
 
 }

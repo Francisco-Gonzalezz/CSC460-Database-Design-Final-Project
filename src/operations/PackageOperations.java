@@ -36,12 +36,16 @@ package operations;
 
 import java.sql.Connection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import entities.Course;
+import entities.CoursePackage;
+import entities.Package;
 import utils.CommonPrints;
 import utils.DBUtils;
 
@@ -136,13 +140,22 @@ public class PackageOperations implements OperationsInterface {
             return;
         }
 
+        entities.Package packageToAdd = new Package( packageName, cost );
+        if ( !DBUtils.saveNewPackage( packageToAdd, dbConnection ) ) {
+            System.out.println( "Unable to save package to DB, possibly a duplicate package" );
+            return;
+        }
         // Get how many courses to add to package
         System.out.println( "\nHow many courses would you like to add to the package" );
+        System.out.println( "------------------------------------------------------" );
         int amountOfCourses = 0;
         while ( true ) {
             try {
                 amountOfCourses = Integer.valueOf( getInputFromUser() );
             } catch ( NumberFormatException e ) {
+                if ( exitSignal ) {
+                    break;
+                }
                 System.out.println( "Must enter a numeric value" );
                 continue;
             }
@@ -155,9 +168,42 @@ public class PackageOperations implements OperationsInterface {
             break;
         }
 
+        if ( exitSignal ) {
+            return;
+        }
+        // Get courses that user wants to end
+        Set<String> courseSelections = getCourseSelections( amountOfCourses );
+        if ( exitSignal ) {
+            return;
+        }
+
+        // Save the selections to DB
+        for ( String courseSelection : courseSelections ) {
+            int courseID = DBUtils.getCourseIDFromName( courseSelection, dbConnection );
+            CoursePackage coursePackage = new CoursePackage( courseID, courseSelection );
+            DBUtils.saveNewCoursePackage( coursePackage, dbConnection );
+        }
+
+    }
+
+    /**
+     * Continually asks for user to select how many courses they initially chose to add to this package.
+     * Will make sure that the same course is not selected more than once.
+     * Will return a set of string of courses selected
+     * @param numberOfCoursesToSelect
+     * @return Set<String> containing string of courses
+     */
+    private Set<String> getCourseSelections( int numberOfCoursesToSelect ) {
+        Set<String> coursesSelected = new HashSet<>();
+        List<Course> allCourses = DBUtils.getAllCourses( dbConnection );
+        if ( allCourses.size() < numberOfCoursesToSelect ) {
+            System.out.println( "Not enough courses to make a package with " + numberOfCoursesToSelect + " courses." );
+            exitSignal = true;
+            return null;
+        }
+
         System.out.println( "\nSelect a course from below" );
         System.out.println( "--------------------------" );
-        List<Course> allCourses = DBUtils.getAllCourses( dbConnection );
         Map<String, String> courseMap = new HashMap<>();
         int i = 1;
         for ( Course course : allCourses ) {
@@ -169,25 +215,35 @@ public class PackageOperations implements OperationsInterface {
         }
 
         System.out.println();
-        String userSelection = null;
-        while ( userSelection == null ) {
-            userSelection = getInputFromUser();
-            if ( exitSignal ) {
-                return;
-            }
-
-            if ( !courseMap.containsKey( userSelection ) ) {
-                System.out.println( "Not a valid option" );
+        System.out.println( "Select first class" );
+        while ( coursesSelected.size() < numberOfCoursesToSelect ) {
+            String userSelection = null;
+            while ( userSelection == null ) {
+                userSelection = getInputFromUser();
+                if ( exitSignal ) {
+                    return null;
+                }
+                if ( !courseMap.containsKey( userSelection ) ) {
+                    System.out.println( "Not a valid option" );
+                    continue;
+                }
+                String courseSelected = courseMap.get( userSelection );
+                if ( !coursesSelected.add( courseSelected ) ) {
+                    System.out.println( "Course already selected please pick a different option" );
+                } else if ( coursesSelected.size() < numberOfCoursesToSelect ) {
+                    System.out.println( "Select another class to add" );
+                }
             }
         }
 
-        String courseSelected = courseMap.get( userSelection );
+        return coursesSelected;
     }
 
     private float getCostOfPackage() {
         float cost = 0;
 
         System.out.println( "\nEnter cost of the package" );
+        System.out.println( "--------------------------" );
         while ( true ) {
             try {
                 cost = Float.valueOf( getInputFromUser() );
