@@ -212,7 +212,10 @@ public class DBUtils {
     }
 
     /**
-     * 
+     * Get item name from the item num
+     * @param itemNum
+     * @param dbConnection
+     * @return
      */
     private static String getItemName( int itemNum, Connection dbConnection ) {
         String name = "";
@@ -319,7 +322,9 @@ public class DBUtils {
     }
 
     /**
-     * 
+     * Updates a member information Query
+     * @param member Member to update
+     * @return
      */
     private static String generateMemberUpdate( GymMember member ) {
         StringBuilder sqlBuilder = new StringBuilder( "UPDATE " + BODE1 + PERIOD + MEMBER_TABLE + " SET\n" );
@@ -335,7 +340,9 @@ public class DBUtils {
     }
 
     /**
-     * 
+     * Deletes a member from the DB
+     * @param member
+     * @param dbConnection
      */
     public static void removeMemberFromDB( GymMember member, Connection dbConnection ) {
         try {
@@ -350,7 +357,9 @@ public class DBUtils {
     }
 
     /**
-     * 
+     * Generates 'Unique' id from db using the sequence
+     * @param dbConnection
+     * @return
      */
     public static int generateIDNumberFromSequence( Connection dbConnection ) {
         int generatedID = 0;
@@ -368,7 +377,9 @@ public class DBUtils {
     }
 
     /**
-     * 
+     * Saves a new transaction log entry into the DB
+     * @param transaction
+     * @param dbConnection
      */
     public static void saveNewTransaction( Transaction transaction, Connection dbConnection ) {
         try {
@@ -381,7 +392,9 @@ public class DBUtils {
     }
 
     /**
-     * 
+     * Creates query to add transaction to the DB
+     * @param transaction
+     * @return
      */
     private static String generateInsertTransaction( Transaction transaction ) {
         StringBuilder sqlBuilder = new StringBuilder(
@@ -417,7 +430,9 @@ public class DBUtils {
     }
 
     /**
-     * 
+     * Saves a new class to Db
+     * @param newClass
+     * @param dbConnection
      */
     public static void saveNewClass( Class newClass, Connection dbConnection ) {
         try {
@@ -430,7 +445,9 @@ public class DBUtils {
     }
 
     /**
-     * 
+     * Generate a query to save a new class to the DB
+     * @param newClass
+     * @return
      */
     private static String generateInsertClassQuery( Class newClass ) {
         StringBuilder sqlBuilder = new StringBuilder( "INSERT INTO " + BODE1 + PERIOD + CLASS_TABLE + " VALUES (" );
@@ -452,7 +469,10 @@ public class DBUtils {
     }
 
     /**
-     * 
+     * Adds a member to every course in a given package
+     * @param member
+     * @param packageName
+     * @param dbConnection
      */
     public static void addMemberToPackageCourses( GymMember member, String packageName, Connection dbConnection ) {
         try {
@@ -484,7 +504,10 @@ public class DBUtils {
     }
 
     /**
-     * 
+     * Add a tuple in member class table
+     * @param member
+     * @param gymClass
+     * @param dbConnection
      */
     public static void addToMemberClassTable( GymMember member, Class gymClass, Connection dbConnection ) {
         try {
@@ -511,8 +534,10 @@ public class DBUtils {
     }
 
     /**
-     * 
-     */
+    * Updates an existing class information
+    * @param gymClass Class to update
+    * @param dbConnection Connection to DB
+    */
     public static void saveClassInfo( Class gymClass, Connection dbConnection ) {
         try {
             PreparedStatement stmt = dbConnection.prepareStatement( generateSaveClassQuery() );
@@ -534,7 +559,8 @@ public class DBUtils {
     }
 
     /**
-     * 
+     * Creates query to save an existing class
+     * @return String query with place holders
      */
     private static String generateSaveClassQuery() {
         StringBuilder sqlBuilder = new StringBuilder( "UPDATE " + BODE1 + PERIOD + CLASS_TABLE + " SET \n" );
@@ -560,7 +586,9 @@ public class DBUtils {
     }
 
     /**
-     * 
+     * Create a list of classes from result set
+     * @param classes
+     * @return
      */
     private static List<Class> formClassList( ResultSet classes ) {
         List<Class> classList = new ArrayList<>();
@@ -605,7 +633,9 @@ public class DBUtils {
     }
 
     /**
-     * 
+     * Get the negative balance account users
+     * @param dbConnection Connection to DB
+     * @return Users and their phone numbers who are negative
      */
     public static Map<String, String> getNegativeAccountUsers( Connection dbConnection ) {
         Map<String, String> namesAndNums = new HashMap<>();
@@ -633,7 +663,11 @@ public class DBUtils {
     }
 
     /**
-     * 
+     * Get a member's schedule for a given month
+     * @param member Member to check schedule for
+     * @param month Month for schedule check
+     * @param dbConnection Connection to DB
+     * @return Member's class times for that month
      */
     public static
         Map<Timestamp, Float>
@@ -686,7 +720,10 @@ public class DBUtils {
     }
 
     /**
-     * 
+     * Get the amount of hours a trainer works in a given month
+     * @param month month to look for
+     * @param dbcConnection Connection to db
+     * @return Trainers and their working hours
      */
     public static Map<String, Float> getAllTrainersWorkinghours( int month, Connection dbcConnection ) {
         Map<String, Float> trainerHours = new HashMap<>();
@@ -763,7 +800,9 @@ public class DBUtils {
     }
 
     /**
-     * 
+     * Get a list of all trainers
+     * @param dbConnection
+     * @return List of trainer
      */
     public static List<Trainer> listAllTrainers( Connection dbConnection ) {
         List<Trainer> trainers = new ArrayList<>();
