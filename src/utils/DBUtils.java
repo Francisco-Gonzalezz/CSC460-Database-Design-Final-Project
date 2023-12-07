@@ -433,13 +433,17 @@ public class DBUtils {
         sqlBuilder.append( newClass.getClassNum() + ",\n" );
         sqlBuilder.append( newClass.getCourseID() + ",\n" );
         sqlBuilder.append( newClass.getTrainerID() + ",\n" );
-        sqlBuilder.append( new Date( newClass.getStartTime().getTime() ) + ",\n" );
+        sqlBuilder.append( "TO_TIMESTAMP('" + newClass.getStartTime() );
+        sqlBuilder.deleteCharAt( sqlBuilder.length() - 1);
+        sqlBuilder.deleteCharAt( sqlBuilder.length() - 1);
+        sqlBuilder.append( "', 'YYYY-MM-DD HH24:MI:SS'),\n" );
         sqlBuilder.append( newClass.getClassDuration() + ",\n" );
-        sqlBuilder.append( newClass.getStartDate() + ",\n" );
-        sqlBuilder.append( newClass.getEndDate() + ",\n" );
+        sqlBuilder.append( "TO_DATE('" + newClass.getStartDate() + "', 'YYYY-MM-DD'),\n" );
+        sqlBuilder.append( "TO_DATE('" + newClass.getEndDate() + "', 'YYYY-MM-DD'),\n" );
         sqlBuilder.append( newClass.getCurrentEnrollment() + ",\n" );
         sqlBuilder.append( newClass.getCapacity() );
         sqlBuilder.append( ")" );
+        System.out.println(sqlBuilder.toString());
         return sqlBuilder.toString();
     }
 
@@ -715,6 +719,39 @@ public class DBUtils {
             System.out.println( "Unable to retrieve all trainers working hours" );
         }
         return trainerHours;
+    }
+
+    /**
+     * This method determines whether the trainer given has a scheduling conflict with the class
+     *  they are proposed to teach.
+     * @param trainerId trainer in question, checking for scheduling conflict
+     * @param startTime time and date when proposed class starts
+     * @param duration length, in minutes, of the proposed class
+     * @param dbConnection connection to the Oracle database
+     * @return boolean, whether there is a scheduling overlap with the trainer and the proposed
+     *  new class
+     */
+    public static boolean trainerScheduleConflict( int trainerId, Timestamp startTime, 
+        int duration, Connection dbConnection ) {
+        //Timestamp proposedStart =
+        try {
+            Statement stmt = dbConnection.createStatement();
+            ResultSet classes = stmt.executeQuery( "SELECT STARTTIME, DURATION FROM " + BODE1 + PERIOD + 
+                CLASS_TABLE + " WHERE TRAINERID=" + trainerId );
+            while ( classes.next() ) {
+                Timestamp classTime = classes.getTimestamp( "STARTTIME" );
+                int classDur = classes.getInt( "DURATION" );
+                int millis = classDur * 60000;
+                if ( false ) {
+                    return true;
+                }
+            }
+            stmt.close();
+        } catch ( SQLException e ) {
+             System.out.println( "Unable to find trainer's current schedule" );
+             return true;
+        }
+        return false;
     }
 
     /**
