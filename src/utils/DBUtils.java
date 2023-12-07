@@ -298,6 +298,11 @@ public class DBUtils {
         }
     }
 
+    /**
+     * Updates a member information in the DB
+     * @param member Member to update
+     * @param dbConnection Connection to DB
+     */
     public static void saveChangesToMember( GymMember member, Connection dbConnection ) {
         float amountSpent = getAmountSpentByMember( member, dbConnection );
         member.setMembershipLevel( GymMember.determineLevel( amountSpent ) );
@@ -640,6 +645,11 @@ public class DBUtils {
         return trainerHours;
     }
 
+    /**
+     * Get a list of all the trainers in the DB
+     * @param dbConnection
+     * @return List of trainers
+     */
     public static List<Trainer> listAllTrainers( Connection dbConnection ) {
         List<Trainer> trainers = new ArrayList<>();
 
@@ -662,6 +672,11 @@ public class DBUtils {
         return trainers;
     }
 
+    /**
+     * Get the rental items the amount in stock from DB
+     * @param dbConnection Connection to DB
+     * @return Map containing items and their qunatites
+     */
     public static Map<String, Integer> getRentalItemsAndQuantities( Connection dbConnection ) {
         Map<String, Integer> itemAndQunatity = new HashMap<>();
 
@@ -679,6 +694,11 @@ public class DBUtils {
         return itemAndQunatity;
     }
 
+    /**
+     * Get a list of all rental items in the db
+     * @param dbConnection
+     * @return List<RentalItem>
+     */
     public static List<RentalItem> getRentalItems( Connection dbConnection ) {
         List<RentalItem> items = new ArrayList<>();
         try {
@@ -699,6 +719,11 @@ public class DBUtils {
         return items;
     }
 
+    /**
+     * Saves a new rental log entry into the DB
+     * @param entry
+     * @param dbConnection
+     */
     public static void saveNewRentalLogEntry( RentalLogEntry entry, Connection dbConnection ) {
         try {
             PreparedStatement stmt = dbConnection
@@ -716,6 +741,11 @@ public class DBUtils {
         }
     }
 
+    /**
+     * Updates a rental item in the db
+     * @param item Item to update
+     * @param dbConnection Connection to DB
+     */
     public static void saveChangesToRentalItem( RentalItem item, Connection dbConnection ) {
         try {
             PreparedStatement stmt = dbConnection.prepareStatement( generateSaveRentalItemQuery() );
@@ -728,6 +758,10 @@ public class DBUtils {
         }
     }
 
+    /**
+     * Generates a query to save a new rental item
+     * @return String with a query to save a rental item
+     */
     private static String generateSaveRentalItemQuery() {
         StringBuilder sqlBuilder = new StringBuilder( "UPDATE " + BODE1 + PERIOD + RENTAL_ITEM_TABLE + " SET \n" );
         sqlBuilder.append( "QTYINSTOCK = ?\n" );
@@ -735,6 +769,11 @@ public class DBUtils {
         return sqlBuilder.toString();
     }
 
+    /**
+     * Updates the RentalItem table to up quantity after something has been returned
+     * @param itemName rental item that is being returned
+     * @param dbConnection Connection to db
+     */
     public static void returnItem( String itemName, Connection dbConnection ) {
         try {
             PreparedStatement stmt = dbConnection
@@ -750,6 +789,12 @@ public class DBUtils {
         }
     }
 
+    /**
+     * Updates the oldest rental log for the item the member is returning
+     * @param member Member who is returning item
+     * @param itemName Name of item being returned
+     * @param dbConnection Connection to DB
+     */
     public static void updateRentalLog( GymMember member, String itemName, Connection dbConnection ) {
         try {
             PreparedStatement stmt = dbConnection
@@ -772,6 +817,12 @@ public class DBUtils {
         }
     }
 
+    /**
+     * Get Item ID from the DB based on the name
+     * @param item Item name to search DB for
+     * @param dbConnection Connection to DB
+     * @return Item ID of the item
+     */
     private static int getItemIDFromName( String item, Connection dbConnection ) {
         int id = -1;
         try {
@@ -789,6 +840,11 @@ public class DBUtils {
         return id;
     }
 
+    /**
+     * Saves a new course to the DB
+     * @param course Course to save
+     * @param dbConnection Connection to DB
+     */
     public static void saveNewCourse( Course course, Connection dbConnection ) {
         try {
             PreparedStatement stmt = dbConnection
@@ -803,6 +859,11 @@ public class DBUtils {
         }
     }
 
+    /**
+     * Get a list of all courses in the DB
+     * @param dbConnection
+     * @return List<Course>
+     */
     public static List<Course> getAllCourses( Connection dbConnection ) {
         List<Course> courses = new ArrayList<>();
         try {
@@ -822,6 +883,12 @@ public class DBUtils {
         return courses;
     }
 
+    /**
+     * Gets the amount that user has spent throughout their purchase transactions
+     * @param member Me
+        * @param dbConnection Connection to DB
+     * @return amount member has spent up to now
+     */
     private static float getAmountSpentByMember( GymMember member, Connection dbConnection ) {
         float amount = 0;
         try {
