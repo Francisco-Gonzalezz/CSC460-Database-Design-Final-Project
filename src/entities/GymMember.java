@@ -32,6 +32,8 @@ public class GymMember {
 
     private float accountBalance;
 
+    // Constructors
+
     public GymMember( String firstName, String lastName, String phoneNumber, String email ) {
         this.firstName = firstName;
         this.lastName = lastName;
@@ -60,12 +62,16 @@ public class GymMember {
 
     /*
      * Concatenates the first and last name to get the full member name,
-     * returning a string.
+     *  returning a string.
      */
     public String getFullName() {
         return firstName + " " + lastName;
     }
 
+    /**
+     * Gets the discount level based on the preset membership levels in the
+     *  system.
+     */
     public double getDiscount() {
         if ( membershipLevel.equals( MembershipLevelEnum.DIAMOND ) ) {
             return 0.3;
@@ -76,6 +82,11 @@ public class GymMember {
         }
     }
 
+    /**
+     * Determines which membership level a member is currenly at based on the
+     *  amount of money that they have spend on packages, returning the enum
+     *  of the level.
+     */
     public static MembershipLevelEnum determineLevel( float amountSpent ) {
         if ( amountSpent >= 1500 ) {
             return MembershipLevelEnum.DIAMOND;
