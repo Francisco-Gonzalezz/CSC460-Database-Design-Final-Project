@@ -65,6 +65,19 @@
  *      - Asks user for first and last name, makes sure that an empty string is not entered.
  * getMemberIDFromUser():
  *      - Asks user for the member id and verifies that it could potentially be a valid id 
+ * 
+ * 
+ * Constants:
+ *  - MAX_MEMBER_OPERATIONS: Max valid integer option that the user can select
+ *  - MIN_OPERATIONS: Min valid integer that a user can input
+ *  - SMALLEST_MEMBER_ID: Smallest possible member id that can be created
+ *  - ADD_MEMBER_OPTION: Integer option to start creating a member
+ *  - REMOVE_MEMBER_OPTION: Integer option to start removing a member
+ *  - PURCHASE_PACKAGE_OPTION: Integer option to start purchasing a package
+ *  - ADD_FUNDS_OPTION: Integer option to add funds to member account
+ *  - CHECK_MEMBER_SCHEDULE_OPTION: Integer option to search member schedule
+ *  - RETURN_TO_MAIN_MENU_OPTION: Integer option to return to main menu
+ *  - EXIT: String that will indicate to cancel the current operation
  */
 
 package operations;
@@ -328,7 +341,7 @@ public class MemberOperations implements OperationsInterface {
                 System.out.println( "Please enter a choice from above." );
                 continue;
             }
-	        break;
+            break;
         }
         float cost = (float) ( packages.get( userInput ) - ( packages.get( userInput ) * member.getDiscount() ) );
         cost = -cost;

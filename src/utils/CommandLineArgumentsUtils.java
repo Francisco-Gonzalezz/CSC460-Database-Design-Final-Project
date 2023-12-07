@@ -7,9 +7,9 @@ package utils;
  */
 public class CommandLineArgumentsUtils {
 
-    private static final String USER_FLAG = "-u";
+    private static final String USER_FLAG = "-u"; // Flag that marks the username will come after this
 
-    private static final String PASSWORD_FLAG = "-p";
+    private static final String PASSWORD_FLAG = "-p"; // Flag that marks password will follow this flag
 
     /**
      * Keeps from creating a new instance of this class
