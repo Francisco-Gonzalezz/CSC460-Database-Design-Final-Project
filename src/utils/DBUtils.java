@@ -215,7 +215,6 @@ public class DBUtils {
                     int stored = rentals.get( itemName );
                     stored += quantityBorrowed;
                     rentals.put( itemName, stored );
-                    System.out.println( "here" );
                 } else {
                     rentals.put( itemName, quantityBorrowed );
                 }
@@ -482,7 +481,6 @@ public class DBUtils {
         sqlBuilder.append( newClass.getCurrentEnrollment() + ",\n" );
         sqlBuilder.append( newClass.getCapacity() );
         sqlBuilder.append( ")" );
-        System.out.println( sqlBuilder.toString() );
         return sqlBuilder.toString();
     }
 
