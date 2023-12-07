@@ -327,7 +327,7 @@ public class MemberOperations implements OperationsInterface {
         // Print out the options
         for ( String packageName : packages.keySet() ) {
             float cost = packages.get( packageName );
-            System.out.println( packageName + "  $" + ( cost - ( cost * member.getDiscount() ) ) );
+            System.out.println( packageName + "  $" + Math.round( ( cost - ( cost * member.getDiscount() ) ) ) );
         }
         String userInput = null;
         System.out.println();
@@ -343,7 +343,7 @@ public class MemberOperations implements OperationsInterface {
             }
             break;
         }
-        float cost = (float) ( packages.get( userInput ) - ( packages.get( userInput ) * member.getDiscount() ) );
+        float cost = Math.round( ( packages.get( userInput ) - ( packages.get( userInput ) * member.getDiscount() ) ) );
         cost = -cost;
         makePurchaseOrRecharge( member, (float) cost );
 

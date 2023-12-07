@@ -16,6 +16,7 @@ import java.util.Map;
 
 import entities.Class;
 import entities.Course;
+import entities.CoursePackage;
 import entities.GymMember;
 import entities.RentalItem;
 import entities.RentalLogEntry;
@@ -301,7 +302,9 @@ public class DBUtils {
     }
 
     /**
-     * 
+     * Updates a member information in the DB
+     * @param member Member to update
+     * @param dbConnection Connection to DB
      */
     public static void saveChangesToMember( GymMember member, Connection dbConnection ) {
         float amountSpent = getAmountSpentByMember( member, dbConnection );
@@ -400,9 +403,10 @@ public class DBUtils {
         int courseId = 0;
         try {
             Statement stmt = dbConnection.createStatement();
-            ResultSet courseIdResult = stmt.executeQuery( "SELECT COURSEID FROM " + BODE1
-                + PERIOD + COURSE_TABLE + " WHERE CATEGORY='" + category 
-                + "' AND CATALOGNUM=" + catalogNum );
+            ResultSet courseIdResult = stmt
+                .executeQuery(
+                    "SELECT COURSEID FROM " + BODE1 + PERIOD + COURSE_TABLE + " WHERE CATEGORY='" + category
+                        + "' AND CATALOGNUM=" + catalogNum );
             courseIdResult.next();
             courseId = courseIdResult.getInt( "COURSEID" );
             stmt.close();
@@ -434,8 +438,8 @@ public class DBUtils {
         sqlBuilder.append( newClass.getCourseID() + ",\n" );
         sqlBuilder.append( newClass.getTrainerID() + ",\n" );
         sqlBuilder.append( "TO_TIMESTAMP('" + newClass.getStartTime() );
-        sqlBuilder.deleteCharAt( sqlBuilder.length() - 1);
-        sqlBuilder.deleteCharAt( sqlBuilder.length() - 1);
+        sqlBuilder.deleteCharAt( sqlBuilder.length() - 1 );
+        sqlBuilder.deleteCharAt( sqlBuilder.length() - 1 );
         sqlBuilder.append( "', 'YYYY-MM-DD HH24:MI:SS'),\n" );
         sqlBuilder.append( newClass.getClassDuration() + ",\n" );
         sqlBuilder.append( "TO_DATE('" + newClass.getStartDate() + "', 'YYYY-MM-DD'),\n" );
@@ -443,7 +447,7 @@ public class DBUtils {
         sqlBuilder.append( newClass.getCurrentEnrollment() + ",\n" );
         sqlBuilder.append( newClass.getCapacity() );
         sqlBuilder.append( ")" );
-        System.out.println(sqlBuilder.toString());
+        System.out.println( sqlBuilder.toString() );
         return sqlBuilder.toString();
     }
 
@@ -485,11 +489,12 @@ public class DBUtils {
     public static void addToMemberClassTable( GymMember member, Class gymClass, Connection dbConnection ) {
         try {
             PreparedStatement testStmt = dbConnection
-                .prepareStatement( "SELECT CLASSNUM FROM " + BODE1 + PERIOD + MEMBER_CLASS_TABLE + " WHERE MEMBERID = ?" );
+                .prepareStatement(
+                    "SELECT CLASSNUM FROM " + BODE1 + PERIOD + MEMBER_CLASS_TABLE + " WHERE MEMBERID = ?" );
             testStmt.setInt( 1, member.getMemberID() );
             ResultSet classNumSet = testStmt.executeQuery();
             while ( classNumSet.next() ) {
-                if ( classNumSet.getInt(1) == gymClass.getClassNum() ) {
+                if ( classNumSet.getInt( 1 ) == gymClass.getClassNum() ) {
                     return;
                 }
             }
@@ -731,13 +736,16 @@ public class DBUtils {
      * @return boolean, whether there is a scheduling overlap with the trainer and the proposed
      *  new class
      */
-    public static boolean trainerScheduleConflict( int trainerId, Timestamp startTime, 
-        int duration, Connection dbConnection ) {
+    public static
+        boolean
+        trainerScheduleConflict( int trainerId, Timestamp startTime, int duration, Connection dbConnection ) {
         //Timestamp proposedStart =
         try {
             Statement stmt = dbConnection.createStatement();
-            ResultSet classes = stmt.executeQuery( "SELECT STARTTIME, DURATION FROM " + BODE1 + PERIOD + 
-                CLASS_TABLE + " WHERE TRAINERID=" + trainerId );
+            ResultSet classes = stmt
+                .executeQuery(
+                    "SELECT STARTTIME, DURATION FROM " + BODE1 + PERIOD + CLASS_TABLE + " WHERE TRAINERID="
+                        + trainerId );
             while ( classes.next() ) {
                 Timestamp classTime = classes.getTimestamp( "STARTTIME" );
                 int classDur = classes.getInt( "DURATION" );
@@ -748,8 +756,8 @@ public class DBUtils {
             }
             stmt.close();
         } catch ( SQLException e ) {
-             System.out.println( "Unable to find trainer's current schedule" );
-             return true;
+            System.out.println( "Unable to find trainer's current schedule" );
+            return true;
         }
         return false;
     }
@@ -780,7 +788,9 @@ public class DBUtils {
     }
 
     /**
-     * 
+     * Get the rental items the amount in stock from DB
+     * @param dbConnection Connection to DB
+     * @return Map containing items and their qunatites
      */
     public static Map<String, Integer> getRentalItemsAndQuantities( Connection dbConnection ) {
         Map<String, Integer> itemAndQunatity = new HashMap<>();
@@ -800,7 +810,9 @@ public class DBUtils {
     }
 
     /**
-     * Is this one useful?
+     * Get a list of all rental items in the db
+     * @param dbConnection
+     * @return List<RentalItem>
      */
     public static List<RentalItem> getRentalItems( Connection dbConnection ) {
         List<RentalItem> items = new ArrayList<>();
@@ -823,7 +835,9 @@ public class DBUtils {
     }
 
     /**
-     * 
+     * Saves a new rental log entry into the DB
+     * @param entry
+     * @param dbConnection
      */
     public static void saveNewRentalLogEntry( RentalLogEntry entry, Connection dbConnection ) {
         try {
@@ -843,7 +857,9 @@ public class DBUtils {
     }
 
     /**
-     * 
+     * Updates a rental item in the db
+     * @param item Item to update
+     * @param dbConnection Connection to DB
      */
     public static void saveChangesToRentalItem( RentalItem item, Connection dbConnection ) {
         try {
@@ -858,7 +874,8 @@ public class DBUtils {
     }
 
     /**
-     * 
+     * Generates a query to save a new rental item
+     * @return String with a query to save a rental item
      */
     private static String generateSaveRentalItemQuery() {
         StringBuilder sqlBuilder = new StringBuilder( "UPDATE " + BODE1 + PERIOD + RENTAL_ITEM_TABLE + " SET \n" );
@@ -868,7 +885,9 @@ public class DBUtils {
     }
 
     /**
-     * 
+     * Updates the RentalItem table to up quantity after something has been returned
+     * @param itemName rental item that is being returned
+     * @param dbConnection Connection to db
      */
     public static void returnItem( String itemName, Connection dbConnection ) {
         try {
@@ -886,7 +905,10 @@ public class DBUtils {
     }
 
     /**
-     * 
+     * Updates the oldest rental log for the item the member is returning
+     * @param member Member who is returning item
+     * @param itemName Name of item being returned
+     * @param dbConnection Connection to DB
      */
     public static void updateRentalLog( GymMember member, String itemName, Connection dbConnection ) {
         try {
@@ -911,7 +933,10 @@ public class DBUtils {
     }
 
     /**
-     * 
+     * Get Item ID from the DB based on the name
+     * @param item Item name to search DB for
+     * @param dbConnection Connection to DB
+     * @return Item ID of the item
      */
     private static int getItemIDFromName( String item, Connection dbConnection ) {
         int id = -1;
@@ -930,8 +955,10 @@ public class DBUtils {
         return id;
     }
 
-    /** 
-     * 
+    /**
+     * Saves a new course to the DB
+     * @param course Course to save
+     * @param dbConnection Connection to DB
      */
     public static void saveNewCourse( Course course, Connection dbConnection ) {
         try {
@@ -948,7 +975,9 @@ public class DBUtils {
     }
 
     /**
-     * 
+     * Get a list of all courses in the DB
+     * @param dbConnection
+     * @return List<Course>
      */
     public static List<Course> getAllCourses( Connection dbConnection ) {
         List<Course> courses = new ArrayList<>();
@@ -970,7 +999,10 @@ public class DBUtils {
     }
 
     /**
-     * 
+     * Gets the amount that user has spent throughout their purchase transactions
+     * @param member Me
+        * @param dbConnection Connection to DB
+     * @return amount member has spent up to now
      */
     private static float getAmountSpentByMember( GymMember member, Connection dbConnection ) {
         float amount = 0;
@@ -988,6 +1020,70 @@ public class DBUtils {
             System.out.println( "Unable to get money member spent" );
         }
         return amount;
+    }
+
+    /**
+     * Searches DB for the course id of a course given it's name
+     * @param name Name of course
+     * @param dbConnection Connection to DB
+     * @return Course ID for name passed into the function
+     */
+    public static int getCourseIDFromName( String name, Connection dbConnection ) {
+        int id = 0;
+        String[] categoryNum = name.split( " " );
+        String category = categoryNum[0];
+        int catNum = Integer.parseInt( categoryNum[1] );
+        try {
+            PreparedStatement stmt = dbConnection
+                .prepareStatement(
+                    "SELECT COURSEID FROM " + BODE1 + PERIOD + COURSE_TABLE
+                        + " WHERE CATEGORY = ? AND CATALOGNUM = ?" );
+            stmt.setString( 1, category );
+            stmt.setInt( 2, catNum );
+            ResultSet result = stmt.executeQuery();
+            result.next();
+            id = result.getInt( "COURSEID" );
+        } catch ( SQLException e ) {
+            System.out.println( "Unable to find ID from package name" );
+        }
+
+        return id;
+    }
+
+    /**
+     * Saves the course package object into the DB
+     * @param coursePackage Course package to save 
+     * @param dbConnection Connection to DB
+     */
+    public static void saveNewCoursePackage( CoursePackage coursePackage, Connection dbConnection ) {
+        try {
+            PreparedStatement stmt = dbConnection
+                .prepareStatement( "INSERT INTO " + BODE1 + PERIOD + COURSE_PACKAGE_TABLE + " VALUES ( ?, ? )" );
+            stmt.setInt( 1, coursePackage.getCourseID() );
+            stmt.setString( 2, coursePackage.getPackageName() );
+            stmt.executeUpdate();
+        } catch ( SQLException e ) {
+            System.out.println( "Unable to save course package" );
+        }
+    }
+
+    /**
+     * Saves a new package to the DB
+     * @param packageToAdd Package to add
+     * @param dbConnection Connection to DB
+     * @return True if successful and false otherwise
+     */
+    public static boolean saveNewPackage( entities.Package packageToAdd, Connection dbConnection ) {
+        try {
+            PreparedStatement stmt = dbConnection
+                .prepareStatement( "INSERT INTO " + BODE1 + PERIOD + PACKAGE_TABLE + " VALUES ( ?, ? )" );
+            stmt.setString( 1, packageToAdd.getPackageName() );
+            stmt.setFloat( 2, packageToAdd.getCost() );
+            stmt.executeUpdate();
+            return true;
+        } catch ( SQLException e ) {
+            return false;
+        }
     }
 
 }
