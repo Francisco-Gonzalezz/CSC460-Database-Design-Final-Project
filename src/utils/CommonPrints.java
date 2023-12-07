@@ -28,7 +28,7 @@ public class CommonPrints {
         System.out.println( "1) Gym member operations" );
         System.out.println( "2) Course/Class operations" );
         System.out.println( "3) Package operations" );
-        System.out.println( "4) Rental Operations" );
+        System.out.println( "4) Rental operations" );
         System.out.println( "5) Admin operations" );
         System.out.println( "6) Exit" );
     }
