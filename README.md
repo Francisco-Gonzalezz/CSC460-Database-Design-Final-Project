@@ -2,8 +2,8 @@
 Contributers: Jake Bode, Francisco Gonzalez
 
 ## Contributions
-Jake Bode focused on the normalization analysis and database schema design as well as the coding for the course and class operations
-Francisco Gonzalez completed much of the code organization and the programming of most of the operations
+Jake Bode focused on the normalization analysis and database schema design as well as the coding for the course and class operations.
+Francisco Gonzalez completed much of the code organization and the programming of most of the operations.
 
 ## Prerequisites
 
