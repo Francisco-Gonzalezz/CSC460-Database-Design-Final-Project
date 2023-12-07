@@ -133,8 +133,8 @@ public class AdminOperations implements OperationsInterface {
      * returned it will print out each member and their phone number to the console
      */
     private void listNegativeBalanceMembers() {
-        System.out.println( "Members with negative balances" );
-        System.out.println( "------------------------------" );
+        System.out.println( "Members with negative balances (and their phone number)" );
+        System.out.println( "-------------------------------------------------------" );
         Map<String, String> namesAndNums = DBUtils.getNegativeAccountUsers( dbConnection );
         if ( namesAndNums.isEmpty() ) {
             System.out.println( "There are zero negative balance accounts" );
@@ -143,7 +143,7 @@ public class AdminOperations implements OperationsInterface {
         List<String> memberName = new ArrayList<>( namesAndNums.keySet() );
         Collections.sort( memberName );
         for ( String name : memberName ) {
-            System.out.println( name + " " + namesAndNums.get( name ) );
+            System.out.println( name + " [" + namesAndNums.get( name ) + "]" );
         }
     }
 
@@ -154,7 +154,7 @@ public class AdminOperations implements OperationsInterface {
      */
     private void showTrainerWorkingHours() {
         System.out.println( "Trainer's working hours" );
-        System.out.println( "-----------------------" );
+        System.out.println( "----------------------------------------" );
         System.out.println( "Enter month to search for ( 1 for January and 12 for December etc. )" );
         System.out.println();
         String userInput = null;

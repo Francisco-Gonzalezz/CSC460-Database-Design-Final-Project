@@ -1,3 +1,27 @@
+/**
+ * @author Francisco Gonzalez
+ * @author Jake Bode
+ * 
+ * Class: RentalOperations.java
+ * Implements: OperationsInterface
+ * Purpose: Encapsulate operations that are specific to item rental at the gym such as renting and returning
+ *  items and determining which items a user has checked out but not returned.
+ * 
+ * Utilizes:
+ *  - java.sql.*
+ *  - java.util.*
+ * 
+ * Constructor: RentalOperations( Connection, Scanner ):
+ *  - Connection to DB
+ *  - Create scanner to read input from stdin
+ * 
+ * Public Methods:
+ *  - openMenu():
+ *      - Opens the member operations memu and prints the available options within the displayed menu. Reads input from user
+ *        and validates that it was one of the options the user could currently choose from. Then directs control of program
+ *        over to coresponding functions of the option chosen.
+ */
+
 package operations;
 
 import java.sql.Connection;
@@ -31,11 +55,17 @@ public class RentalOperations implements OperationsInterface {
 
     private boolean exitSignal;
 
+    // Constructor for rental operations menu
     public RentalOperations( Connection dbConnection, Scanner scanner ) {
         this.dbConnection = dbConnection;
         this.scanner = scanner;
     }
 
+    /**
+     * Opens the member operations memu and prints the available options within the displayed menu. Reads input from user
+     *  and validates that it was one of the options the user could currently choose from. Then directs control of program
+     *  over to coresponding functions of the option chosen.
+     */
     @Override
     public void openMenu() {
         System.out.println();
@@ -53,6 +83,7 @@ public class RentalOperations implements OperationsInterface {
                 continue;
             }
 
+            // checks that the option selected is one of the ones in the list
             if ( option < MIN_INTEGER_OPTION || option > MAX_INTEGER_OPTION ) {
                 CommonPrints.printInvalidOptionMessage();
                 continue;
@@ -60,6 +91,7 @@ public class RentalOperations implements OperationsInterface {
             break;
         }
 
+        // opens menu corresponding to selected option
         switch ( option ) {
             case RENT_OUT_ITEM_OPTION:
                 openRentOutItemMenu();
@@ -79,6 +111,11 @@ public class RentalOperations implements OperationsInterface {
         System.out.println();
     }
 
+    /**
+     * This private method implements our custom query, which prompts the user for a member id
+     *  then lists all of the rental items that that member has not yet returned; handles user
+     *  input and printing the query results to the console.
+     */
     private void listUnreturnedItems() {
         System.out.println( "Figure out what items user has not returned yet" );
         System.out.println( "------------------------------------------------" );
@@ -96,6 +133,7 @@ public class RentalOperations implements OperationsInterface {
                 continue;
             }
 
+            // builds the member object from the database
             member = DBUtils.retrieveMemberFromID( memberId, dbConnection );
             if ( member == null ) {
                 System.out.println( "Invalid ID please enter again" );
@@ -103,6 +141,7 @@ public class RentalOperations implements OperationsInterface {
             }
             break;
         }
+        // gets the result set from the query
         Map<String, Integer> checkoutItems = DBUtils.getCheckoutRentalsForMember( member, dbConnection );
         if ( checkoutItems.isEmpty() ) {
             System.out.println( "\n" + member.getFullName() + " has no unreturned items" );
@@ -119,6 +158,10 @@ public class RentalOperations implements OperationsInterface {
         }
     }
 
+    /**
+     * This private method deals with a member returning an item through the database, handling user
+     *  interaction with the UI as well as running the queries.
+     */
     private void openReturnItemMenu() {
         System.out.println( "Return an item ( Type 'Cancel' to exit menu )" );
         System.out.println( "---------------------------------------------" );
@@ -173,10 +216,15 @@ public class RentalOperations implements OperationsInterface {
             }
             break;
         }
+        // runs the queries to update the log
         DBUtils.returnItem( itemBeingReturned, dbConnection );
         DBUtils.updateRentalLog( member, itemBeingReturned, dbConnection );
     }
 
+    /**
+     * This private method deals with a member renting an item through the database, handling user
+     *  interaction with the UI as well as running the queries.
+     */
     private void openRentOutItemMenu() {
         System.out.println( "Rent out item ( Type 'Cancel' to exit )" );
         System.out.println( "---------------------------------------" );
@@ -186,7 +234,7 @@ public class RentalOperations implements OperationsInterface {
         while ( member == null ) {
             int memberID = getMemberIDFromUser();
             if ( exitSignal ) {
-                System.out.println( "Cancelling member deletion" );
+                System.out.println( "Cancelling item rental" );
                 return;
             }
             member = DBUtils.retrieveMemberFromID( memberID, dbConnection );
@@ -217,6 +265,7 @@ public class RentalOperations implements OperationsInterface {
             break;
         }
 
+        // selects the rental item from the possible list that matches the user input
         int toRentOut = 1;
         RentalItem itemSelected = null;
         for ( RentalItem rentalItem : rentalItems ) {
@@ -233,7 +282,8 @@ public class RentalOperations implements OperationsInterface {
             itemSelected.getItemNum(),
             new Date( System.currentTimeMillis() ),
             false,
-            toRentOut );
+            toRentOut 
+        );
         DBUtils.saveNewRentalLogEntry( entry, dbConnection );
 
         // Update the rental item table to account for quantity being taken
@@ -241,6 +291,9 @@ public class RentalOperations implements OperationsInterface {
         DBUtils.saveChangesToRentalItem( itemSelected, dbConnection );
     }
 
+    /**
+     * This private method lists all of the rental items in stock for the user to see
+     */
     private void listRentalItemsAndQuantities() {
         System.out.println();
         System.out.println( "Rental items and their quantites in stock" );
@@ -252,6 +305,10 @@ public class RentalOperations implements OperationsInterface {
         }
     }
 
+    /**
+     * Gathers user input with the possibility of cancelling an operation, which
+     *  is handled in methods that call this one
+     */
     private String getInputFromUser() {
         String userInput = scanner.nextLine();
         if ( userInput.equalsIgnoreCase( EXIT ) ) {
@@ -260,6 +317,10 @@ public class RentalOperations implements OperationsInterface {
         return userInput;
     }
 
+    /**
+     * This method gets the member id from the user for various commands within the rental
+     *  operations menu.
+     */
     private int getMemberIDFromUser() {
         System.out.println( "Enter the member id" );
         String userInputMemberID = null;
