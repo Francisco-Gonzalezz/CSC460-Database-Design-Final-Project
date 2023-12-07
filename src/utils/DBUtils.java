@@ -1,3 +1,21 @@
+/**
+ * @author Francisco Gonzalez
+ * @author Jake Bode
+ * @version 1.0
+ * Class: DBUtils.java
+ * Purpose: Contains a variety of methods that let the program interface interact with the
+ *  Oracle database connection (see method comments for details).
+ * 
+ * Utilizes:
+ *  - java.sql.*
+ *  - java.time.*
+ *  - java.util.*
+ * 
+ * No constructor
+ * 
+ * Methods/constants: see method comments below
+ */
+
 package utils;
 
 import java.sql.Connection;
@@ -26,6 +44,7 @@ import enums.MembershipLevelEnum;
 
 public class DBUtils {
 
+    // SQL/database constants
     private static final String BODE1 = "BODE1";
     private static final String FRANCISCOG852 = "FRANCISCOG852";
     private static final String PERIOD = ".";
@@ -77,7 +96,6 @@ public class DBUtils {
     }
 
     /**
-     * 
      * @param tableName
      * @param dbConnection
      * @return True if table is not empty and false if it is
