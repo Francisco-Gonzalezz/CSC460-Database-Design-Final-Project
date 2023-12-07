@@ -35,9 +35,15 @@
 package operations;
 
 import java.sql.Connection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
+import java.util.regex.Pattern;
 
+import entities.Course;
 import utils.CommonPrints;
+import utils.DBUtils;
 
 public class PackageOperations implements OperationsInterface {
 
@@ -116,6 +122,115 @@ public class PackageOperations implements OperationsInterface {
     private void openNewPackageWizard() {
         System.out.println( "New Course Package Wizard ( Type 'Cancel' at anytime to cancel package creation )" );
         System.out.println( "---------------------------------------------------------------------------------" );
+        System.out.println();
+
+        // Get package name
+        String packageName = getPackageName();
+        if ( exitSignal ) {
+            return;
+        }
+
+        // Get cost of new package
+        float cost = getCostOfPackage();
+        if ( exitSignal ) {
+            return;
+        }
+
+        // Get how many courses to add to package
+        System.out.println( "\nHow many courses would you like to add to the package" );
+        int amountOfCourses = 0;
+        while ( true ) {
+            try {
+                amountOfCourses = Integer.valueOf( getInputFromUser() );
+            } catch ( NumberFormatException e ) {
+                System.out.println( "Must enter a numeric value" );
+                continue;
+            }
+
+            if ( amountOfCourses <= 0 ) {
+                System.out.println( "Must add at least one course" );
+                continue;
+            }
+
+            break;
+        }
+
+        System.out.println( "\nSelect a course from below" );
+        System.out.println( "--------------------------" );
+        List<Course> allCourses = DBUtils.getAllCourses( dbConnection );
+        Map<String, String> courseMap = new HashMap<>();
+        int i = 1;
+        for ( Course course : allCourses ) {
+            String option = i + ")" + course.toString();
+            System.out.println( option );
+            String[] split = option.split( Pattern.quote( ")" ) );
+            courseMap.put( split[0], split[1] );
+            i++;
+        }
+
+        System.out.println();
+        String userSelection = null;
+        while ( userSelection == null ) {
+            userSelection = getInputFromUser();
+            if ( exitSignal ) {
+                return;
+            }
+
+            if ( !courseMap.containsKey( userSelection ) ) {
+                System.out.println( "Not a valid option" );
+            }
+        }
+
+        String courseSelected = courseMap.get( userSelection );
+    }
+
+    private float getCostOfPackage() {
+        float cost = 0;
+
+        System.out.println( "\nEnter cost of the package" );
+        while ( true ) {
+            try {
+                cost = Float.valueOf( getInputFromUser() );
+                if ( exitSignal ) {
+                    return cost;
+                }
+            } catch ( NumberFormatException e ) {
+                System.out.println( "Enter a numberic value please" );
+                continue;
+            }
+
+            if ( cost <= 0 ) {
+                System.out.println( "Class cannot be free" );
+                continue;
+            }
+
+            break;
+        }
+
+        return cost;
+    }
+
+    /**
+     * Get package name from user
+     * @return User supplied package name
+     */
+    private String getPackageName() {
+        System.out.println( "Name of new package" );
+        System.out.println( "-------------------" );
+        String packageName = null;
+        while ( true ) {
+            packageName = getInputFromUser();
+            if ( exitSignal ) {
+                return null;
+            }
+
+            if ( packageName.isEmpty() ) {
+                System.out.println( "Name cannot be empty" );
+                continue;
+            }
+            break;
+        }
+        return packageName;
     }
 
     /**
